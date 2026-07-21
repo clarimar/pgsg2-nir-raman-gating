@@ -33,7 +33,7 @@ Generalização entre Modalidades Espectroscópicas (NIR–Raman)}\\[0.3cm]
 
 \begin{abstract}
 \noindent
-O projeto fundador do programa de pesquisa, \texttt{pgsg\_0}, propôs o \emph{Prior-Guided Spectral Gating} (PGSG), um mecanismo de atenção espectral guiado por priors quimiométricos, validado exclusivamente em espectroscopia no infravermelho próximo (NIR). O projeto \texttt{pgsg\_1} --- \emph{"Prior-Guided Spectral Gating with End-to-End Optimization for NIR Spectroscopy: Scalable Architecture for Interpretable Regression in Small-Sample Regimes"} --- atacou a primeira limitação declarada por \texttt{pgsg\_0} --- validação restrita a amostras pequenas --- demonstrando, com a base Mango DMC v3 ($n=1{,}448$ no protocolo intra-safra), que a arquitetura revisada PGSGv2 (gates sigmoid independentes, priors não-circulares, refinamento \emph{data-driven}) mantém vantagem preditiva sobre PLS mesmo em larga escala ($R^2=0{,}806$ vs.\ $0{,}568$). Este documento apresenta a proposta definitiva de \texttt{pgsg\_2}, que ataca a segunda limitação declarada: a validação restrita a uma única modalidade espectroscópica. Diferentemente de uma pré-proposta de brainstorming que cogitou generalizar simultaneamente para Raman, infravermelho médio (MIR) e espectrometria de massas (MS), esta proposta delimita o escopo empírico a duas modalidades --- NIR (reuso de \texttt{pgsg\_1}) e Raman (via o benchmark público RamanBench/\texttt{raman-data}) --- e formaliza um novo constructo, a \emph{topologia do gate espectral}, caracterizada por três descritores quantitativos: entropia, suavidade e esparsidade (índice de Hoyer). MIR e MS são explicitamente descartados do escopo empírico atual por razões de viabilidade e de adequação física do mecanismo, permanecendo como trabalho futuro do programa.
+O projeto fundador do programa de pesquisa, \texttt{pgsg\_0}, propôs o \emph{Prior-Guided Spectral Gating} (PGSG), um mecanismo de atenção espectral guiado por priors quimiométricos, validado exclusivamente em espectroscopia no infravermelho próximo (NIR). O projeto \texttt{pgsg\_1} --- \emph{"Prior-Guided Spectral Gating with End-to-End Optimization for NIR Spectroscopy: Scalable Architecture for Interpretable Regression in Small-Sample Regimes"} --- atacou a primeira limitação declarada por \texttt{pgsg\_0} --- validação restrita a amostras pequenas --- demonstrando, com a base Mango DMC v3 ($n=1{,}448$ no protocolo intra-safra), que a arquitetura revisada PGSGv2 (gate por \emph{softmax}, regressor PLS interno reajustado a cada época, prior não-circular via inicialização log-centrada) mantém vantagem preditiva sobre PLS mesmo em larga escala ($R^2=0{,}806$ vs.\ $0{,}568$). Este documento apresenta a proposta definitiva de \texttt{pgsg\_2}, que ataca a segunda limitação declarada: a validação restrita a uma única modalidade espectroscópica. Diferentemente de uma pré-proposta de brainstorming que cogitou generalizar simultaneamente para Raman, infravermelho médio (MIR) e espectrometria de massas (MS), esta proposta delimita o escopo empírico a duas modalidades --- NIR (reuso de \texttt{pgsg\_1}) e Raman (via o benchmark público RamanBench/\texttt{raman-data}) --- e formaliza um novo constructo, a \emph{topologia do gate espectral}, caracterizada por três descritores quantitativos: entropia, suavidade e esparsidade (índice de Hoyer). MIR e MS são explicitamente descartados do escopo empírico atual por razões de viabilidade e de adequação física do mecanismo, permanecendo como trabalho futuro do programa.
 \end{abstract}
 
 \tableofcontents
@@ -66,7 +66,7 @@ A pré-proposta que originou este documento continha um insight central correto:
 \begin{enumerate}[label=(\alph*)]
 \item \textbf{Redução de quatro para duas modalidades.} A pré-proposta cogitava NIR, Raman, MIR e MS na mesma investigação. Isso reproduziria, em sentido inverso, o problema que \texttt{pgsg\_1} corrigiu: uma validação cujo escopo declarado excede o que pode ser executado e testado com rigor dentro do prazo de um projeto. Raman é escolhida como segunda modalidade por (i) possuir um benchmark público de grande escala e recém-disponibilizado (RamanBench, Seção~\ref{sec:dados}), e (ii) apresentar uma estrutura física de pico (bandas estreitas, alta razão sinal-ruído localizada) que contrasta de forma nítida com as bandas largas e sobrepostas do NIR --- o contraste mais informativo para testar a hipótese de topologia de gate.
 \item \textbf{Exclusão de espectrometria de massas do escopo empírico.} O argumento físico que justifica o gating --- correlação entre posições espectrais adjacentes ao longo de um eixo contínuo --- não se sustenta em MS, cujos sinais são discretos em razão massa/carga sem a mesma estrutura de vizinhança local. Incluir MS sem adaptar a arquitetura seria uma extensão fraca. MS permanece como direção de trabalho futuro, condicionada a uma reformulação do operador de gating para dados não contínuos.
-\item \textbf{Formalização matemática dos descritores de topologia do gate.} As expressões de entropia, suavidade e esparsidade na pré-proposta precisam de correção: gates sigmoid independentes não somam 1 (pré-requisito para entropia de Shannon), e a razão de esparsidade proposta não corresponde a nenhuma medida padrão da literatura de processamento de sinais. A Seção~\ref{sec:topologia} apresenta as definições corrigidas.
+\item \textbf{Formalização matemática dos descritores de topologia do gate.} As expressões de entropia, suavidade e esparsidade na pré-proposta precisam de correção: o gate real (\texttt{PGSGModel}, softmax sobre $\theta$) já soma 1 por construção, então a entropia de Shannon é aplicável diretamente, sem normalização adicional; já a razão de esparsidade proposta na pré-proposta não corresponde a nenhuma medida padrão da literatura de processamento de sinais. A Seção~\ref{sec:topologia} apresenta as definições corrigidas.
 \end{enumerate}
 
 \section{Pergunta científica e hipóteses}
@@ -139,7 +139,7 @@ Os contratos do operador $\mathcal{T}$ precisam ser estendidos (não reescritos)
 \section{Métodos}
 
 \subsection{Arquitetura}
-Reuso integral da PGSGv2 (gates sigmoid independentes; regularização KL entre gate aprendido e prior; refinamento \emph{data-driven}). Nenhuma mudança arquitetural é introduzida entre modalidades --- esta é, precisamente, a condição de teste da Hipótese~1.
+Reuso integral do \texttt{PGSGModel} de \texttt{pgsg\_1} (\texttt{src/pgsg\_1/models/pgsg.py}): gate por \emph{softmax} sobre um vetor $\theta \in \mathbb{R}^p$ ($g = \mathrm{softmax}(\theta)$), regressor interno PLS reajustado a cada época sobre $X \odot g$, e gradiente de $\theta$ estimado por diferença finita central (sem autograd). Treino por SGD com momentum e early stopping por \emph{val\_loss}. Nenhuma mudança arquitetural é introduzida entre modalidades --- esta é, precisamente, a condição de teste da Hipótese~1.
 
 \subsection{Priors por modalidade}
 \begin{itemize}
@@ -153,10 +153,10 @@ Protocolo intra-domínio (\emph{within-dataset}), replicando a decisão de \text
 \subsection{Topologia do gate espectral}
 \label{sec:topologia}
 
-Seja $g \in (0,1)^p$ o vetor de gate aprendido sobre $p$ bandas/números de onda.
+Seja $g = \mathrm{softmax}(\theta) \in (0,1)^p$ o vetor de gate aprendido pelo \texttt{PGSGModel} sobre $p$ bandas/números de onda. Por construção do softmax, $\sum_{i=1}^p g_i = 1$ e $g_i > 0$ para todo $i$ -- logo a entropia de Shannon se aplica diretamente a $g$, sem normalização adicional.
 
 \begin{align}
-\text{Entropia normalizada:}\quad & H(g) = -\sum_{i=1}^{p} \hat{g}_i \log \hat{g}_i, \qquad \hat{g}_i = \frac{g_i}{\sum_{j=1}^p g_j} \\
+\text{Entropia:}\quad & H(g) = -\sum_{i=1}^{p} g_i \log g_i \\
 \text{Suavidade (variação total normalizada):}\quad & \mathrm{TV}(g) = \frac{1}{p-1}\sum_{i=1}^{p-1} |g_i - g_{i+1}| \\
 \text{Esparsidade (índice de Hoyer):}\quad & S(g) = \frac{\sqrt{p} - \|g\|_1/\|g\|_2}{\sqrt{p} - 1} \in [0,1]
 \end{align}
