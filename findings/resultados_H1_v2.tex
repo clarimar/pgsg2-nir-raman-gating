@@ -1,0 +1,36 @@
+% =============================================================
+% Rascunho da seção de Resultados (Hipótese H1) para inclusão no
+% artigo final de pgsg_2 (formato elsarticle, periódico-alvo Chemolab).
+% VERSÃO CORRIGIDA -- substitui findings/resultados_H1.tex, que usava
+% o modelo errado (PGSGModel, softmax+PLS) em vez do modelo real
+% (PGSGv2Model, sigmoid+MLP+Adam, pgsg_v2.py) usado pelos resultados
+% publicados de pgsg_1 (results_v2/).
+%
+% Este arquivo é um FRAGMENTO -- não compila sozinho como documento
+% completo. Deve ser \input{} ou colado dentro do esqueleto elsarticle
+% já usado em pgsg_1, na seção \section{Results}.
+%
+% Dados-fonte: scripts/run_h1_raman_v2.py, execução real (27/07/2026):
+%   n=6.472 (treino 5.177, teste 1.295), p=1.870, PGSGv2Model
+%   (hidden=32, max_epochs=500, patience=30, Adam lr=1e-3).
+% =============================================================
+
+\subsection{H1: Generalização sem mudança arquitetural}
+\label{sec:results-h1}
+
+A Hipótese~1 previa que o \texttt{PGSGv2Model} de \texttt{pgsg\_1} (sigmoid independente por banda + MLP leve treinado fim-a-fim via Adam), aplicado a dados Raman sem qualquer alteração arquitetural, superaria o baseline PLS ($\Delta R^2_{\text{PLS}} > 0$), replicando qualitativamente o resultado obtido em NIR. O resultado observado \textbf{suporta H1}: na execução completa (\texttt{bioprocess\_substrates}, $n=6.472$, split 80/20, $p=1.870$ bandas, alvo glicose),
+
+\[
+\Delta R^2_{\text{PLS}} = R^2_{\text{PGSGv2}} - R^2_{\text{PLS}} = 0{,}9290 - 0{,}9044 = +0{,}0246.
+\]
+
+Diferentemente de uma análise preliminar equivocada (Seção~\ref{sec:erratum}), o treino de $\theta$ neste experimento \textbf{progride genuinamente}: \texttt{best\_epoch}~$=79$ (de um orçamento de até 500 épocas, com \emph{early stopping} em \texttt{patience}~$=30$), e a correlação entre o gate final e o prior de inicialização cai para $\rho(g,s)=0{,}978$ --- um afastamento mensurável do ponto de partida, embora ainda moderado. O treino completo levou apenas 3,9 segundos (ordens de magnitude mais rápido que a diferença finita de uma arquitetura anterior, já que o gradiente aqui é obtido por autograd real).
+
+\paragraph{Topologia do gate (Raman).} Aplicando os descritores formais da Seção~\ref{sec:topologia} ao gate aprendido: entropia $H(g)=6{,}8549$, suavidade $\mathrm{TV}(g)=0{,}007570$, esparsidade de Hoyer $S(g)=0{,}4150$. Estes valores serão comparados ao gate NIR equivalente para testar as Hipóteses~2--3 (Seção~\ref{sec:results-h2h3}, pendente de execução).
+
+\subsection{Nota sobre um erro de protocolo corrigido}
+\label{sec:erratum}
+
+Uma rodada experimental anterior deste projeto usou, por engano, uma implementação diferente e mais antiga de PGSG (\texttt{PGSGModel}: gate por \emph{softmax} global, regressor PLS reajustado a cada época, gradiente por diferença finita) presente no pacote \texttt{src/pgsg\_1/models/}, mas \textbf{nunca utilizada para gerar os resultados publicados do artigo de \texttt{pgsg\_1}} (esses vieram de \texttt{PGSGv2Model}, definido em \texttt{pgsg\_v2.py}, um módulo fora do pacote instalável, referenciado apenas pelo script de experimento real \texttt{run\_experiment\_v2.py}). Sob essa implementação incorreta, o treino do gate parava imediatamente (\texttt{best\_epoch}~$=0$) e $\Delta R^2_{\text{PLS}} \approx 0$, levando a uma conclusão equivocada de que H1 não era suportada, atribuída (também incorretamente) a sobreajuste por sobre-parametrização do gate. Com a implementação correta, o resultado é o oposto: H1 é suportada, com o gate se afastando genuinamente do prior ao longo de dezenas de épocas de treino real. Este episódio é registrado aqui por transparência do processo, e reforça a prática adotada a partir deste ponto do projeto: qualquer reuso de código de \texttt{pgsg\_1} deve ser confirmado contra o script de experimento que de fato gerou os resultados publicados (\texttt{run\_experiment\_v2.py} $\to$ \texttt{results\_v2/}), não apenas contra a estrutura de pastas ou o histórico de commits de um arquivo isolado.
+
+\paragraph{Interpretação.} O resultado corrigido é consistente com o racional original do programa PGSG: o gate aprendido, quando treinado com um mecanismo capaz de fato de se afastar do prior (sigmoid independente, gradiente exato via autograd), produz uma vantagem preditiva mensurável sobre o PLS não-ponderado também em Raman, replicando --- em magnitude mais modesta ($\Delta=+0{,}025$ em Raman vs.\ $\Delta=+0{,}237$ em NIR no ponto de maior $n$) --- o padrão observado em NIR. A comparação de topologia do gate entre as duas modalidades (H2--H3) permanece como o próximo passo para caracterizar \emph{como} essa vantagem se manifesta estruturalmente em cada domínio físico.
