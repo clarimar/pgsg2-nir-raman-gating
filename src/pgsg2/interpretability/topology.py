@@ -89,6 +89,45 @@ def gate_sparsity_hoyer(g: np.ndarray) -> float:
     return float((sqrt_p - l1 / l2) / (sqrt_p - 1))
 
 
+def gate_smoothness_physical(g: np.ndarray, wavelengths: np.ndarray) -> float:
+    """
+    Suavidade normalizada pela densidade FÍSICA de bandas: em vez de
+    tratar cada passo de índice como unitário, divide cada diferença
+    pela distância real entre bandas vizinhas (nm ou cm-1).
+
+        TV_fisica(g) = mean( |g_i - g_{i+1}| / |lambda_i - lambda_{i+1}| )
+
+    Isso remove o confundidor de "quantas bandas cabem dentro de uma
+    região informativa": duas modalidades com números de bandas e
+    faixas espectrais diferentes passam a ser comparáveis em termos de
+    variação por unidade física de comprimento de onda / número de
+    onda, em vez de variação por passo de índice.
+
+    Args:
+        g: vetor de gate, shape (p,).
+        wavelengths: eixo espectral correspondente, shape (p,), em
+            qualquer unidade física consistente (nm ou cm-1).
+
+    Returns:
+        TV normalizada pela densidade de bandas (mesma unidade de
+        1/comprimento de onda).
+    """
+    g = np.asarray(g, dtype=float)
+    wavelengths = np.asarray(wavelengths, dtype=float)
+    _validate_gate_nonnegative(g)
+    if g.shape[0] < 2:
+        raise ValueError("gate_smoothness_physical requer ao menos 2 bandas")
+    if wavelengths.shape != g.shape:
+        raise ValueError(
+            f"wavelengths.shape={wavelengths.shape} != g.shape={g.shape}"
+        )
+    dlambda = np.abs(np.diff(wavelengths))
+    if np.any(dlambda < 1e-12):
+        raise ValueError("wavelengths contém bandas duplicadas/coincidentes (dlambda=0)")
+    dg = np.abs(np.diff(g))
+    return float(np.mean(dg / dlambda))
+
+
 def gate_topology(g: np.ndarray) -> dict[str, float]:
     """Calcula os três descritores de uma vez, para conveniência."""
     return {
@@ -96,6 +135,32 @@ def gate_topology(g: np.ndarray) -> dict[str, float]:
         "smoothness": gate_smoothness(g),
         "sparsity_hoyer": gate_sparsity_hoyer(g),
     }
+
+
+def spectrum_smoothness(X: np.ndarray) -> float:
+    """
+    Suavidade média do espectro BRUTO (não do gate/prior): mesma
+    fórmula de variação total normalizada aplicada a cada espectro
+    (linha de X) e depois promediada entre amostras.
+
+    Serve como teste complementar independente do prior para H3: se o
+    espectro cru já for intrinsecamente mais "raggedy" numa modalidade
+    do que na outra, isso é uma evidência de diferença física real,
+    não um artefato de como o prior foi codificado.
+
+    Args:
+        X: matriz de espectros (n_amostras, n_bandas), já pré-processada.
+
+    Returns:
+        Média de TV(linha) sobre todas as amostras.
+    """
+    X = np.asarray(X, dtype=float)
+    if X.ndim != 2:
+        raise ValueError(f"X deve ser 2D (n_amostras, n_bandas); recebido {X.ndim}D")
+    if X.shape[1] < 2:
+        raise ValueError("spectrum_smoothness requer ao menos 2 bandas")
+    tv_per_sample = np.mean(np.abs(np.diff(X, axis=1)), axis=1)
+    return float(np.mean(tv_per_sample))
 
 
 def _validate_gate_nonnegative(g: np.ndarray) -> None:
