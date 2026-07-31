@@ -1,0 +1,306 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{xcolor}
+
+\geometry{margin=2.7cm}
+\hypersetup{colorlinks=true, linkcolor=blue!50!black, citecolor=blue!50!black, urlcolor=blue!50!black}
+
+\title{\textbf{Prior-Guided Spectral Gating como Framework Geral de\\
+Atenção Espectral Interpretável: Generalização entre Modalidades\\
+Espectroscópicas e Infraestrutura para Imageamento Hiperespectral\\
+(NIR--Raman--HSI)}\\[0.4cm]
+\large CNPq/FNDCT Nº 06/2026 --- Universal --- Faixa C\\
+\normalsize \texttt{pgsg\_2}}
+
+\author{Clarimar José Coelho \\
+\small Programa de Pós-Graduação Engenharia Industrial e Inteligência Artificial \\
+\small Pontifícia Universidade Católica de Goiás (PUC Goiás)}
+
+\date{Goiânia, GO --- julho de 2026 (revisado com resultados reais)}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Coordenador & Clarimar José Coelho --- Doutor (título obtido em 2002) \\
+Vínculo com a instituição executora & Estatutário/celetista --- PUC Goiás \\
+Instituição executora & Pontifícia Universidade Católica de Goiás (PUC-Goiás) \\
+Faixa & C --- doutorado concluído até dez/2015; equipe com $\geq 5$ doutores de $\geq 2$ ICTs distintas \\
+Vigência proposta & 24 (vinte e quatro) meses \\
+Orçamento solicitado & Até R\$ 250.000,00 (teto da Faixa C), detalhado na Seção~\ref{sec:orcamento} \\
+Modalidade de bolsa & Nenhuma bolsa solicitada nesta versão \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\tableofcontents
+
+\section{Resumo}
+
+O mecanismo Prior-Guided Spectral Gating (PGSG), proposto no projeto fundador do programa (\texttt{pgsg\_0}, aceito para publicação em \emph{Chemometrics and Intelligent Laboratory Systems} --- Chemolab), introduz um operador de atenção espectral guiado por priors quimiométricos, capaz de produzir modelos de regressão interpretáveis a partir de dados espectroscópicos. O segundo projeto do programa (\texttt{pgsg\_1}) demonstrou que a arquitetura revisada \texttt{PGSGv2Model} (gate sigmoid independente por banda, regressor MLP leve treinado fim-a-fim via autograd/Adam, prior de literatura fixo e não-circular) mantém vantagem preditiva sobre PLS mesmo em regime de larga escala ($n\approx 1.448$, base Mango DMC v3, $R^2=0{,}806$ vs.\ $0{,}568$). Este projeto executa a terceira etapa do programa (\texttt{pgsg\_2}): testar se o \texttt{PGSGv2Model} generaliza, sem alteração arquitetural, para uma segunda modalidade espectroscópica (Raman, via o benchmark público RamanBench) e se a topologia do gate aprendido --- caracterizada por três descritores formais (entropia, suavidade, esparsidade de Hoyer) --- difere sistematicamente entre NIR e Raman de forma consistente com a física de cada modalidade.
+
+Cinco hipóteses falsificáveis (H1--H5) estruturam o teste; \textbf{todas já foram avaliadas em execução piloto antes da submissão desta proposta} (Seção~\ref{sec:resultados-preliminares}), com quatro suportadas e uma refutada, fortalecendo a viabilidade técnica do restante do projeto. Para além da execução computacional --- já demonstrada --- o projeto financia a aquisição de infraestrutura própria de aquisição de dados: uma câmera de imageamento hiperespectral (HSI) na faixa SWIR e um servidor com GPU dedicado, reduzindo a dependência de bases públicas e de acesso pontual a equipamento de terceiros, e preparando o grupo de pesquisa da PUC-Goiás para os projetos subsequentes do programa (\texttt{pgsg\_3}: regressão multi-alvo; \texttt{pgsg\_4}: otimização de hiperparâmetros; \texttt{pgsg\_5}: quantificação de incerteza), além de abrir uma linha nova de validação em dados espectrais espacialmente resolvidos.
+
+\subsection*{Abstract}
+Prior-Guided Spectral Gating (PGSG), introduced in the founding project of this research program (\texttt{pgsg\_0}, accepted for publication in \emph{Chemometrics and Intelligent Laboratory Systems}), is a chemometrically-informed spectral attention mechanism for interpretable regression. The program's second project (\texttt{pgsg\_1}) showed that the revised \texttt{PGSGv2Model} architecture retains a predictive advantage over PLS at large sample sizes. This proposal funds the program's third stage (\texttt{pgsg\_2}): testing whether \texttt{PGSGv2Model} generalizes, without architectural change, to a second spectroscopic modality (Raman, via the public RamanBench benchmark), and whether the learned gate topology differs systematically between NIR and Raman in a manner consistent with the physics of each modality. All five hypotheses were already evaluated in a real pilot run prior to submission, with four supported and one refuted. The project also funds acquisition of an NIR hyperspectral imaging (HSI) camera and a dedicated GPU server, building in-house data-acquisition infrastructure for the research group and the program's subsequent stages.
+
+\section{Contexto no Programa de Pesquisa}
+
+Este projeto é a terceira etapa executável de um programa de pesquisa estruturado em cinco projetos derivados de um mecanismo fundador (\texttt{pgsg\_0}), cada um atacando uma limitação declarada pelo projeto anterior:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Projeto & Situação & Limitação/objeto \\
+\midrule
+\texttt{pgsg\_0} & Aceito para publicação --- Chemolab & Mecanismo fundador (PGSG) \\
+\texttt{pgsg\_1} & Submetido ao Chemolab, em revisão & Escalabilidade ($n=60$--$215 \to n\approx 1.448$) \\
+\texttt{pgsg\_2} & \textbf{Piloto concluído (Seção~\ref{sec:resultados-preliminares})} & Generalização de modalidade (NIR $\to$ NIR + Raman) \\
+\texttt{pgsg\_3} & Planejado & Regressão multi-alvo \\
+\texttt{pgsg\_4} & Planejado & Otimização sistemática de hiperparâmetros \\
+\texttt{pgsg\_5} & Planejado & Quantificação de incerteza \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\texttt{pgsg\_1} reutiliza e testa o pipeline de oito operadores ($\mathcal{G}$ ingestão, $\mathcal{T}$ pré-processamento, $\mathcal{P}$ priors, $\mathcal{C}$ cenários, $\mathcal{M}$ modelagem, $\mathcal{I}_{\text{pred}}$ avaliação, $\mathcal{I}_{\text{interp}}$ interpretabilidade, $\Sigma$ síntese) que \texttt{pgsg\_2} estende --- sem reescrita --- para uma segunda modalidade. A proposta definitiva de \texttt{pgsg\_2} (documento técnico completo, com ADR-0001 registrando a escolha de dataset) delimitou o escopo empírico a NIR e Raman, descartando MIR e espectrometria de massas por razões de viabilidade e de adequação física do mecanismo de gating a um eixo espectral contínuo. Todo o código, dados de execução e histórico de decisões estão em repositório público: \url{https://github.com/clarimar/pgsg2-nir-raman-gating}.
+
+\section{Aderência à Chamada e Enquadramento na Faixa C}
+
+O coordenador concluiu o doutorado em 2002, portanto fora da janela de "doutorado recente" (jan/2016 até a submissão) exigida pelas Faixas A e B. O enquadramento correto é a Faixa C --- Grupos de pesquisa liderados por pesquisadores consolidados, cujo critério de doutorado é justamente o inverso (concluído até dezembro de 2015, inclusive), combinado a vínculo estatutário ou celetista com a instituição executora.
+
+\begin{itemize}
+\item Critério de doutorado (item 1.2.3.2.a): atendido --- 2002 $\leq$ dezembro de 2015.
+\item Vínculo estatutário/celetista com a PUC-Goiás (item 1.2.3.2.b).
+\item Equipe de, no mínimo, 5 doutores de $\geq 2$ Instituições de Ciência e Tecnologia (ICT) distintas, todos com currículo Lattes atualizado (item 1.2.3.1) --- confirmada pela equipe (Seção~\ref{sec:equipe}).
+\item Vedação de autoindicação como bolsista pelo coordenador (item 1.2.3.6 / 5.4.8): respeitada --- nenhuma bolsa é solicitada para o coordenador neste projeto.
+\item Teto orçamentário da Faixa C: R\$ 250.000,00 em custeio, capital e/ou 1 bolsa IC/ITI/AT, vigência inicial de até 36 meses (este projeto solicita 24 meses).
+\end{itemize}
+
+\noindent\textbf{Observação sobre elegibilidade:} os itens 1.2.3.1 e 3.3.3 tornam a contagem de doutores um critério obrigatório e verificável via Plataforma Lattes --- sua ausência resulta em indeferimento sumário da proposta (item 3.1). Recomenda-se confirmar formalmente, antes da submissão, os vínculos institucionais e a situação cadastral no Lattes de cada membro indicado.
+
+\section{Objetivos}
+
+\subsection{Objetivo geral}
+Testar se o mecanismo \texttt{PGSGv2Model} --- validado em espectroscopia no infravermelho próximo (NIR) --- generaliza, sem alteração arquitetural, para espectroscopia Raman, e se a topologia do gate espectral aprendido reflete sistematicamente a física de cada modalidade, ao mesmo tempo em que se constrói infraestrutura própria de aquisição hiperespectral para os estágios subsequentes do programa PGSG.
+
+\subsection{Objetivos específicos}
+\begin{itemize}
+\item \textbf{OE1} --- Estender os operadores $\mathcal{G}$ (ingestão) e $\mathcal{T}$ (pré-processamento) do pipeline de \texttt{pgsg\_1} para suportar Raman, com cadeia específica de correção de linha de base, remoção de \emph{cosmic rays} e normalização. \textbf{Concluído em piloto.}
+\item \textbf{OE2} --- Formalizar e implementar três descritores quantitativos de topologia de gate (entropia normalizada, suavidade/variação total, esparsidade de Hoyer) no operador $\mathcal{I}_{\text{interp}}$. \textbf{Concluído em piloto.}
+\item \textbf{OE3} --- Executar o protocolo experimental intra-domínio para NIR (Mango DMC v3, Tecator) e Raman (\texttt{bioprocess\_substrates}, RamanBench) e testar as Hipóteses H1--H5 (Seção~\ref{sec:hipoteses}). \textbf{Concluído em piloto (Seção~\ref{sec:resultados-preliminares}); os recursos solicitados financiam a validação estendida (baselines adicionais, mais sementes, robustez estatística) e a preparação para publicação, não mais a viabilidade computacional em si.}
+\item \textbf{OE4} --- Adquirir e integrar uma câmera de imageamento hiperespectral (HSI) SWIR e um servidor com GPU dedicado, estabelecendo capacidade local de aquisição e processamento de dados espectrais para os projetos \texttt{pgsg\_3--5}.
+\item \textbf{OE5} --- Redigir e submeter um artigo em formato \texttt{elsarticle} a periódico da área (Chemolab ou equivalente), com dados e código disponibilizados em repositório público (GitHub), em continuidade à política de acesso aberto já adotada em \texttt{pgsg\_1}.
+\end{itemize}
+
+\section{Pergunta Científica e Hipóteses}
+\label{sec:hipoteses}
+
+\textbf{Pergunta central:} o mecanismo \texttt{PGSGv2Model}, validado em NIR, generaliza --- sem alteração arquitetural --- para uma segunda modalidade espectroscópica (Raman), e a topologia do gate aprendido difere sistematicamente entre as duas modalidades de forma consistente com a física subjacente de cada uma?
+
+\begin{itemize}
+\item \textbf{H1} (Generalização sem mudança arquitetural): \texttt{PGSGv2Model} aplicado a dados Raman, sem alteração de arquitetura (apenas reconfiguração do prior de inicialização), supera PLS em pelo menos um cenário de regressão do RamanBench, replicando qualitativamente o resultado obtido em NIR ($\Delta R^2_{\text{PLS}} > 0$).
+\item \textbf{H2} (Esparsidade diferencial): o gate aprendido em Raman apresenta esparsidade (índice de Hoyer) significativamente maior do que em NIR, refletindo a natureza de picos estreitos do espalhamento Raman frente às bandas largas e sobrepostas do NIR.
+\item \textbf{H3} (Suavidade diferencial): o gate aprendido em NIR apresenta suavidade (variação total normalizada, medida por unidade física de espectro) significativamente maior do que em Raman.
+\item \textbf{H4} (Vantagem do prior fisicamente motivado): a inicialização do gate por atribuições vibracionais da literatura produz desempenho igual ou superior, e maior estabilidade entre sementes de treinamento, em comparação com inicialização não informada, em ambas as modalidades.
+\item \textbf{H5} (Correlação estrutura--física): a entropia e a suavidade do gate aprendido correlacionam-se com a largura de banda espectral conhecida das transições vibracionais relevantes ao analito-alvo em cada modalidade.
+\end{itemize}
+
+Seja $g \in (0,1)^p$ o vetor de gate aprendido sobre $p$ bandas/números de onda (sigmoid independente por banda, não soma 1). Os três descritores de topologia são:
+\[
+H(g) = -\sum_{i=1}^{p} \hat{g}_i \log \hat{g}_i, \quad \hat{g}_i = \frac{g_i}{\sum_j g_j}
+\qquad
+\mathrm{TV}(g) = \frac{1}{p-1}\sum_{i=1}^{p-1} |g_i - g_{i+1}|
+\qquad
+S(g) = \frac{\sqrt{p} - \|g\|_1/\|g\|_2}{\sqrt{p} - 1} \in [0,1]
+\]
+
+\subsection{Resultados preliminares (piloto)}
+\label{sec:resultados-preliminares}
+
+Todas as cinco hipóteses já foram testadas em execução piloto real, antes da submissão desta proposta, usando os mesmos datasets públicos descritos na Seção~\ref{sec:metodologia} e o mesmo protocolo experimental:
+
+\begin{itemize}
+\item \textbf{H1 --- suportada.} $\Delta R^2_{\text{PLS}} = +0{,}0246$ em Raman ($R^2_{\text{PLS}}=0{,}9044$, $R^2_{\text{PGSGv2}}=0{,}9290$; $n=6.472$, $p=1.870$); $+0{,}2444$ em NIR ($R^2_{\text{PLS}}=0{,}5684$, $R^2_{\text{PGSGv2}}=0{,}8128$; Mango DMC v3, Safra 4). Mesma arquitetura, sem qualquer modificação entre modalidades.
+\item \textbf{H2 --- suportada, robusta.} Esparsidade de Hoyer: Raman $0{,}415$ vs.\ NIR $0{,}235$--$0{,}318$ (testado com duas formas de codificação do prior NIR, degrau e gaussiana --- a diferença se mantém e se acentua controlando esse fator).
+\item \textbf{H3 --- suportada, com ressalva metodológica registrada.} A suavidade do gate precisa ser normalizada por unidade física (cm$^{-1}$/nm), não por índice bruto de banda, para comparação válida entre modalidades com densidades de amostragem espectral tão distintas (NIR: $\approx 95$ cm$^{-1}$/banda; Raman: $\approx 1{,}6$ cm$^{-1}$/banda). Após essa correção: suavidade física NIR $=0{,}000369 \ll$ Raman $=0{,}003795$, convergente com a suavidade do espectro bruto medida independentemente de qualquer gate ou prior.
+\item \textbf{H4 --- suportada na dimensão de estabilidade; desempenho estatisticamente equivalente.} Com 10 sementes de treinamento por condição: correlação gate-gate entre sementes $\rho_{\text{pares}}=0{,}998$--$0{,}9995$ (prior de literatura) vs.\ $0{,}865$--$0{,}893$ (inicialização não-informada), em ambas as modalidades --- diferença grande e consistente. $R^2$ de teste não difere significativamente entre as duas condições de inicialização.
+\item \textbf{H5 --- não suportada.} Nenhum dos três descritores locais testados (largura à meia-altura, suavidade, entropia) produziu correlação robusta e replicável com a largura de linha vibracional real reportada na literatura, banda a banda ($n=20$ bandas de glicose em Raman). Resultado negativo reportado com transparência metodológica completa, incluindo a instabilidade da métrica de entropia frente a diferentes normalizações.
+\end{itemize}
+
+O código, os dados de execução (incluindo históricos de treino salvos em \texttt{.npz}) e a documentação completa do processo --- incluindo uma correção de rumo registrada com transparência, em que uma implementação anterior e não-publicada do PGSG (\texttt{PGSGModel}, softmax global + PLS + diferença finita, nunca usada para os resultados publicados de \texttt{pgsg\_1}) foi usada por engano nas primeiras execuções e produziu inicialmente uma conclusão de H1 oposta à que se sustenta com a arquitetura real (\texttt{PGSGv2Model}, sigmoid independente + MLP + autograd) --- estão disponíveis em \url{https://github.com/clarimar/pgsg2-nir-raman-gating} (ver em particular \texttt{findings/SUPERSEDED\_NOTICE.md}).
+
+Esses resultados demonstram a viabilidade técnica do projeto e deslocam o financiamento solicitado do risco de execução computacional para: (i) a aquisição de infraestrutura de aquisição hiperespectral própria (Seção~\ref{sec:infraestrutura}); (ii) validação estendida, com baselines adicionais e maior número de sementes (Seção~\ref{sec:baselines}); e (iii) a redação e submissão do artigo resultante.
+
+\section{Infraestrutura: Aquisição de Câmera HSI e Servidor com GPU}
+\label{sec:infraestrutura}
+
+Diferentemente de \texttt{pgsg\_1}, que operou exclusivamente sobre bases públicas (Mango DMC v3, Tecator), e do estágio atual de \texttt{pgsg\_2}, que passou a contar com acesso a máquinas com GPU (uma NVIDIA e uma AMD RX 9060 XT 16GB) e 60 GB de RAM de terceiros, este projeto propõe consolidar essa capacidade como infraestrutura permanente e institucional da PUC-Goiás, em vez de depender de acesso pontual a equipamento de terceiros. Dois itens de capital sustentam essa consolidação:
+
+\subsection{Câmera de imageamento hiperespectral (HSI), faixa SWIR}
+A aquisição de uma câmera HSI-SWIR (\emph{pushbroom}, faixa aproximada 960--2500 nm, sensor InGaAs estendido/refrigerado) permite ao grupo coletar seus próprios cubos hiperespectrais --- dados espacialmente resolvidos, em vez de espectros pontuais --- abrindo uma terceira frente de validação para o programa PGSG, complementar às bases públicas usadas em H1--H5. Tecnicamente, um cubo HSI pode ser tratado como uma coleção de espectros pontuais (um por pixel), o que permite reaproveitar integralmente os operadores $\mathcal{G}/\mathcal{T}/\mathcal{P}/\mathcal{M}$ já validados, com uma extensão natural do operador $\mathcal{I}_{\text{interp}}$ para mapas espaciais de gate --- direção que alimenta diretamente \texttt{pgsg\_3} (multi-alvo) ao permitir múltiplos analitos por amostra física.
+
+\subsection{Servidor com GPU dedicado de maior capacidade}
+O treinamento do \texttt{PGSGv2Model} em regimes de milhares de amostras já demonstrou ser rápido (segundos a poucos minutos por execução, mesmo em $p\approx 1.870$ bandas) em hardware de terceiros; o servidor dedicado se justifica não pela demanda atual, mas pelo processamento futuro de cubos hiperespectrais (centenas de milhares de espectros por imagem, volume de dados substancialmente maior que espectros pontuais) e pela eliminação da dependência de acesso oportunístico a máquinas de terceiros --- um fator de risco explícito para a continuidade dos projetos \texttt{pgsg\_3--5}. Configuração: GPU profissional de VRAM ampliada ($\geq 40$ GB), $\geq 256$ GB de RAM e armazenamento NVMe ampliado.
+
+\noindent\textbf{Nota de custo} (ver Seção~\ref{sec:orcamento}): os valores orçados são estimativas de mercado a confirmar por cotação formal (mínimo de 3 orçamentos, conforme PO CNPq nº 2.702/2026) antes da submissão.
+
+\section{Metodologia}
+\label{sec:metodologia}
+
+\subsection{Bases de dados}
+
+\begin{center}
+\begin{tabular}{p{2.4cm}p{6.2cm}p{5.5cm}}
+\toprule
+Modalidade & Base & Papel \\
+\midrule
+NIR & Mango DMC v3 (DOI 10.17632/46htwnp833.3); Tecator & Reuso de \texttt{pgsg\_1}; nenhum reprocessamento arquitetural \\
+Raman & \texttt{bioprocess\_substrates} (Lange et al., 2026), via RamanBench/\texttt{raman-data} --- $n=6.472$ espectros reais válidos (6.960 originais menos 488 sem rótulo de glicose), 1.870 bandas, alvo: concentração de glicose & Fonte primária do ramo Raman (ADR-0001, \texttt{pgsg\_2}); mesma ordem de grandeza amostral do ramo NIR \\
+HSI (nova, infraestrutura) & Cubos hiperespectrais coletados em laboratório com a câmera adquirida (Seção~\ref{sec:infraestrutura}) & Piloto de viabilidade para extensão espacial do PGSGv2 --- não faz parte das Hipóteses H1--H5, é preparação para \texttt{pgsg\_3} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Pré-processamento}
+NIR reutiliza integralmente o operador $\mathcal{T}$ de \texttt{pgsg\_1} (remoção de bandas zeradas por safra, SNV/derivada). Para Raman, o operador $\mathcal{T}$ é estendido --- não reescrito --- com: (i) correção de linha de base (ALS); (ii) remoção de \emph{cosmic rays}; (iii) normalização de intensidade (SNV); (iv) alinhamento de eixo de deslocamento Raman (cm$^{-1}$) entre instrumentos, quando aplicável. A interface \texttt{fit\_transform} permanece inalterada.
+
+\subsection{Arquitetura e priors}
+Reuso integral do \texttt{PGSGv2Model} (gate sigmoid independente por banda, regressor MLP leve treinado fim-a-fim via autograd/Adam) --- nenhuma mudança arquitetural entre modalidades, condição de teste de H1. Para NIR, mantém-se o prior de literatura fixo (\texttt{make\_literature\_prior}: 680--700~nm, 900--1000~nm, 1100--1200~nm). Para Raman, o prior é construído a partir de atribuições vibracionais conhecidas da literatura para glicose (bandas 911/1060/1125~cm$^{-1}$, alta confiança; conjunto secundário de bandas de meio de cultura), nunca derivado dos dados de treino do próprio experimento --- preservando o princípio anti-circularidade estabelecido em \texttt{pgsg\_1}.
+
+\subsection{Protocolo experimental}
+Protocolo intra-domínio (\emph{within-dataset}), com conjunto de teste fixo, disjunto e de tamanho constante por dataset --- replicando a decisão de \texttt{pgsg\_1} de evitar comparações entre domínios heterogêneos sem validação prévia (o protocolo cross-safra, testado e descartado em \texttt{pgsg\_1}, degradou $R^2_{\text{PLS}}$ para $\approx 0{,}06$).
+
+\subsection{Baselines adicionais}
+\label{sec:baselines}
+A proposta técnica original de \texttt{pgsg\_2} comparava \texttt{PGSGv2Model} apenas contra PLS. Para dar à comparação um padrão mais próximo do estado da arte internacional em mecanismos de atenção espectral, os recursos solicitados financiam a ampliação do conjunto de baselines em H1:
+\begin{itemize}
+\item \textbf{PLS} --- baseline linear clássico, já usado no piloto.
+\item \textbf{ABRN} (Attention-based Residual Network, Huang et al., 2019) --- rede residual com atenção não guiada por prior, isola o efeito específico do prior quimiométrico do PGSGv2.
+\item \textbf{SpecFuseNet} (Kabiso \& Ko, 2025) --- autoencoder residual com atenção de canal e gate residual espectral, adaptado para regressão.
+\item \textbf{Baselines lineares esparsos} (Elastic Net, Sparse PLS) --- ponte entre o baseline linear (PLS) e os baselines de atenção profunda.
+\end{itemize}
+A inclusão desses baselines não altera o escopo de H1--H5, já concluído em piloto; entra como comparação suplementar de desempenho preditivo no artigo resultante.
+
+\section{Cronograma (24 meses)}
+
+\begin{center}
+\begin{tabular}{p{2.2cm}p{11.9cm}}
+\toprule
+Período & Atividade \\
+\midrule
+M1--M3 & Aquisição de câmera HSI-SWIR e servidor GPU (cotações, processo de compra institucional, importação); extensão do contrato $\mathcal{G}$ para múltiplas modalidades \textbf{(software já concluído em piloto)}. \\
+M4--M6 & Validação estendida do operador $\mathcal{T}$ (mais datasets Raman do RamanBench, testes de robustez); instalação e calibração da câmera HSI-SWIR e do servidor. \\
+M7--M9 & Execução dos baselines adicionais (ABRN, SpecFuseNet, Elastic Net, Sparse PLS --- Seção~\ref{sec:baselines}); ampliação do número de sementes em H4 (de 10 para $\geq 30$, convenção do programa). \\
+M10--M12 & Consolidação estatística de H1--H5 (piloto já executado, Seção~\ref{sec:resultados-preliminares}) com os baselines e sementes ampliados; testes de robustez adicionais. \\
+M13--M15 & Coleta piloto de cubos HSI em laboratório; adaptação exploratória do operador $\mathcal{I}_{\text{interp}}$ para mapas espaciais de gate (relatório técnico interno, não faz parte de H1--H5). \\
+M16--M18 & Síntese final de resultados ($\Sigma$): figuras, tabelas, testes de hipótese consolidados para NIR $\times$ Raman com os dados ampliados. \\
+M19--M21 & Redação do artigo (formato \texttt{elsarticle}), revisão interna, preparação de dados e código para repositório público. \\
+M22--M24 & Submissão a periódico-alvo; resposta a revisões internas; relatório final de execução (REO) e plano de popularização (Seção~\ref{sec:popularizacao}). \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Equipe e Capacidade}
+\label{sec:equipe}
+
+A Faixa C exige, no mínimo, 5 doutores de ao menos 2 ICTs nacionais distintas, todos com Currículo Lattes atualizado, sendo um deles o coordenador.
+
+\begin{center}
+\begin{tabular}{p{3cm}p{3.3cm}p{7cm}}
+\toprule
+Nome & Instituição (ICT) & Papel no projeto \\
+\midrule
+Clarimar José Coelho & PUC Goiás & Coordenador; arquitetura PGSGv2, priors, formalização das hipóteses e redação do artigo \\
+Leticia Ritner & Universidade Estadual de Campinas (Unicamp) & Instrumentação e integração da câmera HSI-SWIR: calibração óptica, aquisição e controle do cubo hiperespectral (operador $\mathcal{G}$) \\
+Marcos Lajovic Carneiro & PUC Goiás & Infraestrutura computacional (servidor GPU) e implementação/treinamento do pipeline PGSGv2 (operadores $\mathcal{C}$, $\mathcal{M}$) \\
+Arlindo Rodrigues Galvão Filho & Universidade Federal de Goiás (UFG) & Priors fisicamente motivados, atribuições vibracionais NIR/Raman e interpretação dos descritores de topologia do gate (operadores $\mathcal{P}$, $\mathcal{I}_{\text{interp}}$) \\
+Edvan Cirino da Silva & Universidade Federal da Paraíba (UFPB) & Validação dos métodos de referência, protocolo de pré-processamento espectral (ALS, remoção de \emph{cosmic rays}, SNV) e execução dos baselines lineares clássicos (operador $\mathcal{T}$; baselines da Seção~\ref{sec:baselines}) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Colaborações e parcerias (critério F)}
+O uso do benchmark RamanBench/\texttt{raman-data} (Koddenbrock et al., arXiv:2605.02003, 2026) estabelece uma relação de dados abertos com um recurso internacional recém-publicado; recomenda-se, como ação de baixo custo e alto retorno para o critério F, contatar os mantenedores do RamanBench para relatar o uso e eventual colaboração de validação cruzada.
+
+\section{Plano de Popularização e Divulgação Científica e Tecnológica}
+\label{sec:popularizacao}
+
+Conforme item 7.1.1.4 da Chamada, o plano deve alcançar público não especializado, excluindo publicações e eventos técnicos:
+\begin{itemize}
+\item Página do projeto no repositório público do GitHub (\url{https://github.com/clarimar/pgsg2-nir-raman-gating}), com README não técnico explicando, em linguagem acessível, o que é espectroscopia e por que "ensinar" um modelo a prestar atenção nas partes certas do espectro importa para inspeção de qualidade de alimentos.
+\item Dois textos de divulgação (blog institucional da PUC-Goiás ou veículo de divulgação científica) nos meses 12 e 24, sobre os resultados intermediários e finais em linguagem não especializada.
+\item Participação em mostra de ciência ou semana acadêmica da PUC-Goiás voltada a estudantes de graduação e público externo, com demonstração prática do funcionamento de um espectrômetro/câmera HSI-SWIR.
+\item Vídeo curto (5--8 min) explicando o projeto para público leigo, publicado em canal institucional, ao final do projeto.
+\end{itemize}
+
+\section{Orçamento Detalhado}
+\label{sec:orcamento}
+
+Valores estimados a partir de referências de mercado para equipamentos equivalentes; TODOS os itens de capital requerem cotação formal (mínimo de 3 orçamentos) antes da submissão, conforme PO CNPq nº 2.702/2026. O CNPq não cobre variação cambial (item 5.7) --- relevante para a câmera HSI-SWIR, tipicamente importada.
+
+\begin{center}
+\begin{tabular}{p{4.3cm}cccp{3.2cm}}
+\toprule
+Item & Natureza & Base (R\$) & +10\% (R\$) & Observação \\
+\midrule
+Câmera HSI-SWIR (\emph{pushbroom}, $\sim$1000--2350 nm, InGaAs refrigerado) & Capital & 160.000,00 & 176.000,00 & Faixa espectral reduzida frente à estimativa inicial (960--2500 nm) para abrir margem orçamentária real \\
+Servidor GPU dedicado (GPU profissional VRAM $\geq 40$ GB, $\geq 256$ GB RAM) & Capital & 45.000,00 & 49.500,00 & VRAM reduzida frente à estimativa inicial ($\geq 48$ GB) pelo mesmo motivo \\
+\midrule
+\textbf{TOTAL SOLICITADO} & & \textbf{205.000,00} & \textbf{225.500,00} & \textbf{Margem de R\$ 24.500,00 (9,8\%) até o teto da Faixa C} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent\textbf{Nota sobre a margem orçamentária.} Uma versão inicial deste orçamento (câmera de faixa espectral mais ampla, servidor de VRAM maior) somava R\$ 249.700,00 --- a apenas R\$ 300,00 do teto da Faixa C, margem praticamente nula para qualquer variação de cotação. As especificações acima foram deliberadamente ajustadas para abrir uma margem real de $\approx 10\%$, preservando a função de cada item (câmera HSI-SWIR e servidor GPU), de modo a absorver oscilação cambial (câmera, tipicamente importada) e de mercado (servidor) sem risco de estourar o teto. Caso a cotação formal confirme preços mais baixos, a margem aumenta; caso venha mais alta, ainda há espaço de absorção sem novo redimensionamento.
+
+\section{Riscos e Limitações}
+
+\begin{itemize}
+\item \textbf{Risco cambial e de importação:} a câmera HSI-SWIR é tipicamente um item importado; o CNPq não cobre flutuação cambial (item 5.7 da Chamada). Cotar em reais com validade de proposta compatível com o cronograma de compra.
+\item \textbf{Escopo de modalidade:} MIR e espectrometria de massas seguem fora do escopo empírico (H1--H5); a frente HSI é tratada como piloto de infraestrutura, não como hipótese testada neste ciclo.
+\item \textbf{Comparabilidade entre eixos espectrais:} NIR (nm) e Raman (cm$^{-1}$) não compartilham unidade física direta; os descritores de topologia são adimensionais por construção, mas exigem normalização por densidade de bandas para comparação cross-modalidade válida --- lição já registrada na execução piloto (H3).
+\item \textbf{Corte orçamentário pelo Comitê Julgador:} cortes superiores a 15\% do orçamento solicitado tornam a proposta "não recomendada" (item 7.2.1.5.2) --- manter a justificativa técnica de cada item de capital bem fundamentada.
+\item \textbf{Resultado negativo em H5:} já ocorrido e reportado com transparência (Seção~\ref{sec:resultados-preliminares}); não representa risco adicional ao cronograma, mas é registrado como parte do padrão de rigor científico do programa.
+\end{itemize}
+
+\section{Resultados Esperados e Impacto}
+
+\begin{itemize}
+\item \textbf{Científico:} teste falsificável, publicável, de que a topologia de um mecanismo de atenção aprendido reflete a física da modalidade espectroscópica --- contribuição de interpretabilidade transferível a qualquer pipeline de gating espectral, não apenas ao PGSG. Piloto já demonstra o resultado central (H1--H4 suportadas, H5 refutada com transparência).
+\item \textbf{Tecnológico:} pipeline de oito operadores testado em duas modalidades espectroscópicas com troca mínima de código, reduzindo custo de adaptação para grupos que trabalham com múltiplas técnicas espectrais.
+\item \textbf{Infraestrutura:} primeira capacidade de aquisição hiperespectral própria do grupo na PUC Goiás, com potencial de uso multiusuário para outros projetos do programa de pós-graduação.
+\item \textbf{Formação de recursos humanos:} dados e código em repositório público, permitindo reuso por outros grupos de pesquisa e por futuros alunos do programa.
+\end{itemize}
+
+\section{Plano de Gestão de Dados (PGD)}
+
+Em conformidade com o item 6.6.3 da Chamada: (i) dados públicos reutilizados (Mango DMC v3, RamanBench/\texttt{raman-data} --- DOI e licenças originais preservados); (ii) dados hiperespectrais coletados localmente com a câmera adquirida, armazenados no repositório institucional da PUC-Goiás com metadados de aquisição; (iii) código-fonte e resultados publicados em repositório público (GitHub), em continuidade à política de acesso aberto já adotada em \texttt{pgsg\_1}. O PGD será salvo em cópia editável para atualização ao longo da execução (item 6.6.3.1).
+
+\section{Referências Indicativas}
+
+\begin{itemize}
+\item Koddenbrock, M., Lange, C., Legner, R., Jaeger, M., Kögler, M. et al. \emph{RamanBench: A Large-Scale Benchmark for Machine Learning on Raman Spectroscopy}. arXiv:2605.02003, 2026.
+\item Anderson, N.~T., Walsh, K.~B., Subedi, P.~P. \emph{Mango DMC v3}. Mendeley Data, DOI: 10.17632/46htwnp833.3.
+\item Echtermeyer, A., Marks, C., Mitsos, A., Viell, J. \emph{Inline Raman spectroscopy and indirect hard modeling for concentration monitoring of dissociated acid species}. Applied Spectroscopy, 75(5), 506--519, 2021.
+\item Béjar-Grimalt, J., Sánchez-Illana, Á., Quintás, G., Byrne, H.~J., Pérez-Guaita, D. \emph{Monte Carlo peaks: simulated datasets to benchmark machine learning algorithms for clinical spectroscopy}. Chemometrics and Intelligent Laboratory Systems, 2025.
+\item Coelho, C.~J. et al. \emph{Prior-Guided Spectral Gating for Interpretable Deep Learning in Near-Infrared Spectroscopy}. Chemometrics and Intelligent Laboratory Systems (aceito para publicação, \texttt{pgsg\_0}).
+\item Coelho, C.~J. et al. \emph{Prior-Guided Spectral Gating with End-to-End Optimization for NIR Spectroscopy: Scalable Architecture for Interpretable Regression in Small-Sample Regimes} (em submissão, \texttt{pgsg\_1}).
+\item Huang, L., Guo, S., Wang, Y., Wang, S., Chu, Q., Li, L., Bai, T. \emph{Attention based residual network for medicinal fungi near infrared spectroscopy analysis}. Mathematical Biosciences and Engineering, 16(4), 3003--3017, 2019.
+\item Kabiso, A.~C., Ko, C.-H. \emph{Attention-enhanced residual autoencoder for NIR spectral feature extraction and classification of grain varieties}. Scientific Reports, 15, 32750, 2025.
+\item \emph{Interpretability in near-infrared (NIR) spectroscopy: Current pathways to the long-standing challenge}. Chemometrics and Intelligent Laboratory Systems, 2025.
+\end{itemize}
+
+\end{document}
