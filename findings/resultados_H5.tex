@@ -1,0 +1,41 @@
+% =============================================================
+% Rascunho da seção de Resultados (Hipótese H5 -- correlação
+% estrutura-física) para inclusão no artigo final de pgsg_2 (formato
+% elsarticle, periódico-alvo Chemolab).
+%
+% FRAGMENTO -- não compila sozinho. \input{} dentro de \section{Results},
+% em sequência a resultados_H1_v2.tex, resultados_H2H3.tex e
+% resultados_H4.tex.
+%
+% Dados-fonte: scripts/run_h5_bandwidth_correlation.py, execução real
+% em 31/07/2026, usando o gate Raman já treinado
+% (h1_raman_v2_result.npz) e larguras de banda reportadas na patente
+% US12372470 ("Use of raman spectroscopy to monitor culture medium").
+% =============================================================
+
+\subsection{H5: Correlação estrutura--física}
+\label{sec:results-h5}
+
+\paragraph{Reformulação necessária.} A Hipótese~5, como originalmente redigida (entropia e suavidade do gate correlacionando-se com a largura de banda vibracional conhecida "em cada modalidade"), não é testável como correlação estatística entre NIR e Raman: há apenas duas modalidades, portanto $n=2$ não sustenta um coeficiente de correlação. A hipótese foi reoperacionalizada como um teste \emph{dentro} do Raman, banda a banda: correlacionando a largura de linha real reportada na literatura (20 bandas de glicose, com centro e faixa de número de onda; fonte: patente US12372470, "Use of Raman spectroscopy to monitor culture medium") com três descritores extraídos localmente do gate \texttt{PGSGv2Model} já treinado (Seção~\ref{sec:results-h1}), numa janela ao redor de cada banda conhecida. A janela é adaptativa (limitada a 45\% da distância ao centro literário mais próximo) para evitar que bandas vizinhas próximas --- por exemplo, 1060 e 1073~cm$^{-1}$, separadas por apenas 13~cm$^{-1}$ --- contaminem a extração umas das outras. NIR não entra neste teste quantitativo: possui apenas três bandas de literatura, e o prior NIR oficial (\texttt{make\_literature\_prior}) já usa exatamente essas larguras por construção, tornando qualquer correlação circular.
+
+\paragraph{Descritores locais e resultado.} Para cada banda, foram extraídos: a largura à meia-altura (FWHM) do gate na janela; a suavidade local (variação total média); e a entropia local (bruta e normalizada por $\log(n)$, onde $n$ é o número de pontos na janela). Nenhum dos três produz uma correlação robusta e na direção prevista:
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Descritor & Pearson $r$ & $p$ \\
+\midrule
+FWHM do gate & $+0{,}254$ & $0{,}279$ \\
+Suavidade local & $+0{,}048$ & $0{,}840$ \\
+Entropia local (bruta) & $+0{,}407$ & $0{,}075$ \\
+Entropia local (normalizada por $\log n$) & $-0{,}636$ & $0{,}003$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+FWHM e suavidade não mostram relação estatisticamente detectável ($n=20$). A entropia local é instável: a versão bruta mostra uma tendência marginal na direção prevista (mais largura real, mais entropia), mas a versão normalizada --- que corrige o viés óbvio de a entropia bruta crescer com o número de pontos amostrados, independentemente da forma do gate --- produz uma correlação \emph{estatisticamente significativa na direção oposta}.
+
+\paragraph{Diagnóstico da instabilidade.} Investigação do porquê revelou um segundo artefato metodológico, desta vez ligado ao próprio tamanho da janela adaptativa: em janelas estreitas (necessárias perto de bandas vizinhas muito próximas, como o par 1060/1073~cm$^{-1}$), a amostra cai perto do topo achatado do pico gaussiano do gate, onde a variação local é pequena por construção --- não porque a banda seja genuinamente mais "concentrada", mas porque a janela é curta demais para capturar a subida e a descida completas do pico. Isso empurra a entropia normalizada para perto do teto ($\approx 1$) de forma mecânica. Em janelas mais largas, mais da subida/descida real é capturada, puxando a métrica para baixo. Como as duas formulações de entropia (bruta e normalizada) invertem de sinal dependendo apenas de como o efeito do tamanho de amostra é tratado, nenhuma das duas é um descritor confiável da estrutura local do gate neste esquema de janelamento.
+
+\textbf{H5 não é suportada.} Um teste sintético de controle (gate artificial com largura de bump proporcional à largura real conhecida, por construção) confirmou que o método de extração recupera corretamente a correlação quando ela de fato existe (FWHM $r=+0{,}73$; entropia bruta $r=+0{,}57$; suavidade $r=-0{,}86$; todos $p<0{,}01$) --- portanto a ausência de correlação nos dados reais é informativa, não uma falha do método de extração em si. A decisão de não seguir ajustando o esquema de janelamento até obter significância foi deliberada: refinamentos sucessivos de um método até que ele produza o resultado esperado constituem um risco de \emph{p-hacking} que este projeto optou por não correr. A instabilidade da entropia local frente a duas normalizações razoáveis é reportada como um achado metodológico em si, relevante para trabalhos futuros que tentem operacionalizar descritores locais de gate espectral.
+
