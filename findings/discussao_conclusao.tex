@@ -1,0 +1,47 @@
+% =============================================================
+% Rascunho da seção de Discussão/Conclusão para o artigo final de
+% pgsg_2 (formato elsarticle, periódico-alvo Chemolab).
+%
+% FRAGMENTO -- não compila sozinho. \input{} como \section{Discussion}
+% (ou \section{Discussion and Conclusion}), após a seção de Resultados
+% (resultados_H1_v2.tex, resultados_H2H3.tex, resultados_H4.tex,
+% resultados_H5.tex).
+% =============================================================
+
+\section{Discussão e Conclusão}
+\label{sec:discussion}
+
+\subsection{Síntese das cinco hipóteses}
+
+\begin{center}
+\begin{tabular}{p{1.3cm}p{6.3cm}p{5.5cm}}
+\toprule
+Hipótese & Resultado & Evidência-chave \\
+\midrule
+H1 & Suportada & $\Delta R^2_{\text{PLS}}=+0{,}0246$ (Raman), $+0{,}2444$ (NIR); mesma arquitetura, sem modificação \\
+H2 & Suportada, robusta & Esparsidade Hoyer: Raman $0{,}415$ > NIR $0{,}235$--$0{,}318$ (duas formas de prior) \\
+H3 & Suportada, com correção metodológica & Suavidade por cm$^{-1}$: NIR $0{,}000369 \ll$ Raman $0{,}003795$; convergente com suavidade do espectro bruto \\
+H4 & Suportada (estabilidade); desempenho equivalente & $\rho_{\text{pares}}$: $0{,}998$--$0{,}9995$ (prior) vs.\ $0{,}86$--$0{,}89$ (sem prior), ambas modalidades \\
+H5 & Não suportada & Nenhum dos três descritores locais correlaciona de forma robusta com largura de banda real ($n=20$, Raman) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Um mecanismo unificador}
+
+As cinco hipóteses, tomadas em conjunto, sugerem um mecanismo coerente para como o PGSGv2 opera em cada modalidade, e por que o ganho preditivo (H1) difere tanto em magnitude entre NIR e Raman.
+
+Em ambas as modalidades, o gate aprendido permanece muito próximo do prior de inicialização ($\rho(g,s)=0{,}998$ em NIR, $0{,}978$ em Raman --- Seção~\ref{sec:results-h1}). Isso significa que a contribuição do PGSGv2 vem, em grande parte, de \emph{ponderar o espectro pelo prior informado antes da regressão}, não de um refinamento extenso do gate por gradiente. Sob essa luz, a diferença de magnitude em H1 --- $\Delta R^2_{\text{PLS}}$ quase dez vezes maior em NIR do que em Raman --- é explicada pela estrutura física de cada modalidade, caracterizada em H2 e H3: o NIR tem bandas largas e sobrepostas (baixa esparsidade, alta suavidade por unidade física), nas quais o sinal relevante para o alvo está diluído entre muitas bandas correlacionadas; ponderar essas bandas por um prior quimicamente informado ajuda substancialmente o PLS subsequente a focar no sinal útil ($R^2_{\text{PLS}}$ bruto de apenas $0{,}568$ evolui para $0{,}813$ com PGSGv2). Já o Raman tem picos naturalmente estreitos e limpos (alta esparsidade, baixa suavidade por unidade física --- H2, H3): o PLS sobre o espectro cru já isola bem o sinal ($R^2_{\text{PLS}}=0{,}904$), restando pouca margem para a ponderação do prior melhorar a predição ($R^2_{\text{PGSGv2}}=0{,}929$).
+
+H4 refina essa leitura: o valor do prior de literatura não está em melhorar a acurácia por si --- o desempenho é estatisticamente equivalente com ou sem prior, em ambas as modalidades --- mas em ancorar o gate a uma solução \emph{reprodutível}. Sem prior, sementes diferentes convergem para conjuntos de bandas relevantes substancialmente distintos (Jaccard $\approx 0{,}60$--$0{,}65$); com prior, a interpretação do modelo é praticamente idêntica entre execuções independentes (Jaccard $\approx 0{,}90$--$0{,}94$). Isso é particularmente relevante para um mecanismo cujo apelo central é a interpretabilidade: um gate que aponta para bandas diferentes a cada semente de treinamento não é uma explicação confiável, mesmo que a predição seja boa.
+
+H5, o único resultado negativo do conjunto, testa uma pretensão mais forte e mais granular do que H2/H3: não apenas que a topologia \emph{agregada} do gate difere entre modalidades de forma consistente com a física (o que H2/H3 já demonstram), mas que a estrutura \emph{local} do gate, banda a banda, reflete a largura de linha vibracional real de cada transição específica. Com $n=20$ bandas de glicose no Raman, nenhum dos três descritores locais testados (FWHM, suavidade, entropia) produziu uma correlação robusta e replicável com a largura reportada na literatura --- e a entropia local se mostrou instável a ponto de inverter de sinal dependendo apenas de uma escolha de normalização (Seção~\ref{sec:results-h5}). Interpretamos isso não como evidência de que o gate é "cego" à física local, mas como um limite de resolução dos descritores atuais: a topologia do gate parece capturar diferenças estruturais \emph{entre modalidades} (H2, H3) sem necessariamente capturar variação fina \emph{dentro} de uma modalidade, banda a banda, ao menos com o esquema de janelamento utilizado.
+
+\subsection{Limitações}
+
+Além das já registradas por hipótese, destacam-se três limitações transversais. Primeiro, o processo de pesquisa deste projeto incluiu uma correção de rumo consequente: uma implementação anterior e nunca publicada de PGSG (softmax global, PLS, diferença finita) foi usada por engano nas primeiras execuções, produzindo uma conclusão de H1 inteiramente oposta (não suportada, por suposto sobreajuste) à que se sustenta com a implementação real (\texttt{PGSGv2Model}, sigmoid independente, MLP, autograd). O episódio, documentado em \texttt{findings/SUPERSEDED\_NOTICE.md} do repositório público, reforça a prática adotada a partir de então: qualquer reuso de código deve ser confirmado contra o script que de fato gerou os resultados publicados, não contra a estrutura de pastas isoladamente. Segundo, a comparação de topologia entre modalidades depende de uma normalização cuidadosa por unidade física (Seção~\ref{sec:results-h2h3}); comparações análogas em trabalhos futuros --- inclusive dentro do próprio programa PGSG, ao incorporar novas modalidades --- devem adotar a mesma cautela. Terceiro, o teste de H4 usou $10$ sementes por condição; um número maior fortaleceria a estimativa de estabilidade, ainda que o efeito observado já seja grande e consistente nas duas modalidades.
+
+\subsection{Implicações para o programa de pesquisa}
+
+Os resultados oferecem uma resposta afirmativa, mas matizada, à pergunta central de \texttt{pgsg\_2}: o PGSGv2 generaliza para Raman sem alteração arquitetural, e sua topologia de gate reflete propriedades físicas gerais de cada modalidade --- mas o \emph{tamanho} da vantagem preditiva, e a \emph{granularidade} da correspondência física capturável, dependem da estrutura de redundância espectral específica de cada domínio. Para os projetos subsequentes do programa (\texttt{pgsg\_3}: multi-alvo; \texttt{pgsg\_4}: hiperparâmetros; \texttt{pgsg\_5}: incerteza), isso sugere que o ganho esperado do mecanismo de gating deve ser avaliado caso a caso em função de quão redundante/diluído é o sinal na modalidade e no alvo em questão, não assumido como uniforme.
+
