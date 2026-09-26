@@ -1,0 +1,149 @@
+{
+  "consistency_check": {
+    "NIR": {
+      "PLSModel_10": 0.5683505213598068,
+      "sklearn_PLS_10": 0.5683505213598068
+    },
+    "Raman": {
+      "PLSModel_10": 0.9043914003073942,
+      "sklearn_PLS_10": 0.9043914003073942
+    }
+  },
+  "paper_repetition": [
+    {
+      "branch": "NIR",
+      "model": "PLS-10",
+      "H": 10.0,
+      "r2_test": 0.5683505213598068
+    },
+    {
+      "branch": "NIR",
+      "model": "PLS-cvmin",
+      "H": 80.0,
+      "r2_test": 0.9185236498428868
+    },
+    {
+      "branch": "NIR",
+      "model": "PLS-1se",
+      "H": 73.0,
+      "r2_test": 0.9191878428928761
+    },
+    {
+      "branch": "NIR",
+      "model": "PGSGv2",
+      "H": NaN,
+      "r2_test": 0.812760269224838
+    },
+    {
+      "branch": "Raman",
+      "model": "PLS-10",
+      "H": 10.0,
+      "r2_test": 0.9043914003073942
+    },
+    {
+      "branch": "Raman",
+      "model": "PLS-cvmin",
+      "H": 7.0,
+      "r2_test": 0.9073707496949313
+    },
+    {
+      "branch": "Raman",
+      "model": "PLS-1se",
+      "H": 5.0,
+      "r2_test": 0.9030524555478313
+    },
+    {
+      "branch": "Raman",
+      "model": "PGSGv2",
+      "H": NaN,
+      "r2_test": 0.9290102945119495
+    }
+  ],
+  "repeated_holdout": {
+    "NIR": {
+      "n_reps": 10,
+      "r2_mean": {
+        "PGSGv2": 0.7936,
+        "PLS-10": 0.563,
+        "PLS-1se": 0.9018,
+        "PLS-cvmin": 0.9067
+      },
+      "r2_sd": {
+        "PGSGv2": 0.024,
+        "PLS-10": 0.0431,
+        "PLS-1se": 0.0163,
+        "PLS-cvmin": 0.0156
+      },
+      "delta_vs_PLS-10": {
+        "mean": 0.2306,
+        "sd": 0.0351,
+        "n_positive": 10,
+        "wilcoxon_p": 0.001953125
+      },
+      "delta_vs_PLS-cvmin": {
+        "mean": -0.113,
+        "sd": 0.0287,
+        "n_positive": 0,
+        "wilcoxon_p": 0.001953125
+      },
+      "delta_vs_PLS-1se": {
+        "mean": -0.1082,
+        "sd": 0.031,
+        "n_positive": 0,
+        "wilcoxon_p": 0.001953125
+      },
+      "H1_decision_vs_PLS-1se": "not supported"
+    },
+    "Raman": {
+      "n_reps": 10,
+      "r2_mean": {
+        "PGSGv2": 0.932,
+        "PLS-10": 0.8998,
+        "PLS-1se": 0.8963,
+        "PLS-cvmin": 0.9022
+      },
+      "r2_sd": {
+        "PGSGv2": 0.0076,
+        "PLS-10": 0.0099,
+        "PLS-1se": 0.0113,
+        "PLS-cvmin": 0.011
+      },
+      "delta_vs_PLS-10": {
+        "mean": 0.0322,
+        "sd": 0.0042,
+        "n_positive": 10,
+        "wilcoxon_p": 0.001953125
+      },
+      "delta_vs_PLS-cvmin": {
+        "mean": 0.0297,
+        "sd": 0.0053,
+        "n_positive": 10,
+        "wilcoxon_p": 0.001953125
+      },
+      "delta_vs_PLS-1se": {
+        "mean": 0.0357,
+        "sd": 0.0066,
+        "n_positive": 10,
+        "wilcoxon_p": 0.001953125
+      },
+      "H1_decision_vs_PLS-1se": "supported"
+    }
+  },
+  "config": {
+    "pgsg1_root": "/home/clarimar/Dropbox/pgsg/pgsg_1",
+    "csv_path": "/home/clarimar/Dropbox/pgsg/pgsg_1/data/mango_dmc_v3/MangoDMC_NIR_Data_v3.csv",
+    "pgsg2_root": "/home/clarimar/Dropbox/pgsg/pgsg_2",
+    "out_dir": "/home/clarimar/pgsg_results/pgsg_2/r1/grouped",
+    "branches": "nir,raman",
+    "hidden": 32,
+    "max_epochs": 500,
+    "patience": 30,
+    "h_max": 120,
+    "quick": false,
+    "skip_consistency_check": false,
+    "ungrouped": false,
+    "n_reps": 10,
+    "n_folds": 5,
+    "grouped_repetitions": true
+  }
+}

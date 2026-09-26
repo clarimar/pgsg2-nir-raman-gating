@@ -1,0 +1,60 @@
+{
+  "NIR": {
+    "n_rows_season4": 1448,
+    "n_groups": 725,
+    "group_size_counts": {
+      "1": 2,
+      "2": 723
+    },
+    "similarity": {
+      "within_pairs_n": 723,
+      "within_median_r": 0.9823421759821092,
+      "between_median_r": 0.900896390202393,
+      "between_p99_r": 0.987997645967751
+    },
+    "loader_n_season4": 1448,
+    "loader_order_matches_csv": true
+  },
+  "Raman": {
+    "target_names": [
+      "Glucose",
+      "Glycerol",
+      "Acetate",
+      "EnPump",
+      "Nitrate",
+      "Yeast_Extract",
+      "total_phosphate",
+      "total_sulfate"
+    ],
+    "n_valid_glucose": 6472,
+    "n_unique_target_vectors": 3191,
+    "n_unique_glucose_values": 2898,
+    "group_size_counts": {
+      "2": 3168,
+      "4": 1,
+      "6": 22
+    },
+    "similarity": {
+      "within_pairs_n": 3168,
+      "within_median_r": 0.9997982527263267,
+      "between_median_r": 0.9957348462173349,
+      "between_p99_r": 0.9994129200572732
+    },
+    "other_attributes": {
+      "application_type": "APPLICATION_TYPE",
+      "class_names": "list",
+      "group_ids": "NoneType",
+      "info": "DatasetInfo",
+      "max_shift": "float64",
+      "min_shift": "float64",
+      "n_classes": "NoneType",
+      "n_frequencies": "int",
+      "n_raman_shifts": "int",
+      "n_spectra": "int",
+      "name": "str",
+      "target_range": "tuple",
+      "task_type": "TASK_TYPE",
+      "to_dataframe": "method"
+    }
+  }
+}
