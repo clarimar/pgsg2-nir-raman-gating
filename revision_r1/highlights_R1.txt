@@ -1,0 +1,6 @@
+Highlights
+- Prior-guided spectral gating was compared with calibrated PLS on NIR and Raman data
+- Against cross-validated PLS, the gated model loses in NIR and wins in Raman
+- A fixed PLS complexity produced a spurious NIR advantage of +0.23 in R2
+- Raman gates are sparser and NIR gates smoother per wavenumber, as physics predicts
+- Literature priors make the learned gate reproducible across seeds, not more accurate

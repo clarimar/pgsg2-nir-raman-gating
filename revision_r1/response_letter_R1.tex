@@ -1,0 +1,94 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{parskip}
+\newenvironment{reviewer}{\par\color{black!70}\itshape}{\par}
+\newcommand{\response}{\par\noindent\textbf{Response.}\ }
+
+\begin{document}
+
+\noindent Clarimar José Coelho\\
+Postgraduate Program in Industrial Engineering and Artificial Intelligence\\
+Pontifícia Universidade Católica de Goiás (PUC Goiás), Goiânia, GO, Brazil\\
+clarimar@pucgoias.edu.br
+
+\medskip
+\noindent Prof.\ Jose Manuel Amigo\\
+Editor, Chemometrics and Intelligent Laboratory Systems
+
+\medskip
+\noindent\textbf{Manuscript CHEMOLAB-D-26-01046 --- Response to the reviewer and summary of changes}
+
+\medskip
+Dear Prof.\ Amigo,
+
+Thank you for handling our manuscript and for the opportunity to revise it. We are grateful to Reviewer~2 for a careful reading and for four precise comments, all of which we have addressed.
+
+We must also draw your attention to changes that go beyond what the reviewer requested. While preparing the revision we re-examined the predictive comparison with partial least squares (PLS) and found two problems in our own analysis. First, the PLS baseline used a fixed number of latent variables ($H=10$), inherited from an earlier dataset and never re-selected. Second, both datasets contain replicate spectra of the same physical sample (two spectra per mango fruit; mostly duplicate acquisitions per Raman mixture), and our random train/test split allowed replicates to fall into both partitions. We re-ran the comparison with $H$ selected by cross-validation on the training data (one-standard-error rule) and with train/test splits and cross-validation folds that keep all spectra of a sample together, over ten paired splits.
+
+The corrected analysis changes the conclusion of hypothesis H1. In NIR, the gated model does not outperform calibrated PLS (paired $\Delta R^{2}=-0.108\pm0.031$, negative in all ten splits); the advantage reported in the submitted version ($+0.244$) was produced by the under-parameterized baseline. In Raman, the advantage is confirmed ($\Delta R^{2}=+0.036\pm0.007$, positive in all ten splits). The gate-topology and prior results (H2--H5) are unaffected. Because the original title asserted generalization of the predictive advantage, we propose a new title that reflects what the evidence supports:
+
+\begin{quote}
+\emph{Gate Topology and Reproducibility of Prior-Guided Spectral Gating Across Near-Infrared and Raman Spectroscopy}
+\end{quote}
+
+We recognise that these changes exceed a minor revision, and we would welcome a further round of review if you consider it appropriate. We preferred to report the corrected result rather than publish a claim we now know to be unsupported. All three corrections (including the model-identity correction already described in the submitted version) are documented in Section~5 of the revised manuscript, and the revision scripts, results, and commit history are in the public repository.
+
+Finally, the submitted version cited a second study of this research program for a performance claim (NIR, $R^{2}=0.806$ versus $0.568$). That study was not accepted for publication, and the claim was based on the same fixed-$H$ baseline. We have removed the claim; the preprint is now cited only as the description of the architecture.
+
+A point-by-point response follows, and a list of all other changes is given at the end.
+
+Sincerely,\\
+Clarimar José Coelho, on behalf of both authors
+
+\bigskip
+\hrule
+\bigskip
+
+\section*{Response to Reviewer 2}
+
+\begin{reviewer}
+An interesting paper, and generally very clear. I have only a few comments, all of them minor.
+\end{reviewer}
+\response We thank the reviewer for the positive assessment and for the specific comments.
+
+\begin{reviewer}
+1. p2, line 23. The flat baseline is not a natural property of Raman spectra. They are only flat after having been flattened by baseline removal.
+\end{reviewer}
+\response Agreed. The sentence in the Introduction now reads: ``Raman spectra, by contrast, exhibit narrow, well-resolved vibrational peaks superimposed on a broad fluorescence background, which becomes approximately flat only after baseline correction.'' This also connects to the baseline-correction step (asymmetric least squares) in Section~4.2.
+
+\begin{reviewer}
+2. p4, line 80. The 12,000 relates to the full five-season dataset, not to the part actually used here.
+\end{reviewer}
+\response The reviewer is correct; the figure referred to the full Mango DMC dataset. The sentence (Section~4.1) now reads: ``a sample size in the thousands, comparable to that of the NIR branch ($n=6{,}472$ Raman versus $n=1{,}448$ NIR).'' Checking this passage also led us to document the replicate structure of both datasets (1,448 NIR spectra from 725 fruits; 6,472 Raman spectra from 3,191 mixtures), now stated in Section~4.1 and Table~1, with the consequences described in the letter above.
+
+\begin{reviewer}
+3. p5, line 105. I take it the split mentioned here is a further split of the training samples and not a use of the test set.
+\end{reviewer}
+\response Yes. The early-stopping validation subset is 20\% of the training partition, selected by target value so that it spans the target range; the test partition is never used for training, early stopping, or model selection. Section~4.3 now states this explicitly. In the revised H1 analysis, the cross-validation used to select the number of PLS components is likewise confined to the training partition (Section~4.7).
+
+\begin{reviewer}
+4. p5, Section 4.3. The presentation throughout is admirably concise. In this section it was a bit too concise for me. I had to reread a couple of times before completely understanding it. If the sigmoid function was explicitly shown and theta identified as the parameter vector in the first sentence I would have got there more quickly.
+\end{reviewer}
+\response Thank you for this suggestion. Section~4.3 now opens by defining $\theta\in\mathbb{R}^{p}$ as the vector of gate parameters, one per spectral variable, and shows the gate explicitly as Eq.~(1), $g_i=\sigma(\theta_i)=1/(1+e^{-\theta_i})$. The gated spectrum $x\odot g$, the MLP, the joint training of $\theta$ and the MLP weights, and the logit initialization from the prior are then introduced in that order. (The gate-topology descriptors are consequently renumbered as Eqs.~(2)--(4).)
+
+\section*{Other changes}
+
+\begin{enumerate}
+\item \textbf{PLS baseline (Sections 4.7, 5, 6.1).} $H$ is selected by 5-fold cross-validation on the training partition over $H=1,\dots,120$, by the minimum-error and one-standard-error rules; the latter is the pre-declared reference. PLS with $H=10$ is kept in Table~2 for comparison with the submitted version.
+\item \textbf{Sample-grouped validation (Sections 4.1, 4.6, 4.7, 5).} H1 is evaluated over ten paired splits that keep all spectra of a fruit or mixture in one partition; cross-validation folds are grouped in the same way. Grouping lowered the mean test $R^{2}$ of every model by at most 0.017 and changed no conclusion.
+\item \textbf{H1 results, Table 2, Fig.~1, Table 4 (Section 6.1).} Replaced by the ten-split results (mean $\pm$ SD and paired differences, Wilcoxon signed-rank test).
+\item \textbf{Abstract, Discussion, Conclusion.} Rewritten to separate the predictive question (modality-dependent, and opposite in direction to the submitted version) from the interpretive one (gate topology and reproducibility). Because an uninformed gate initialization reaches the same accuracy (H4), the Raman gain is attributed to the non-linear regressor rather than to the prior.
+\item \textbf{Removed claim based on the unaccepted study} (Abstract, Introduction, Section~4.6), as explained in the letter above.
+\item \textbf{Train/test split description.} The submitted version described the split as stratified; the code used a random split. Corrected in Table~1 and Section~4.6.
+\item \textbf{H4 wording.} ``Statistically equivalent'' was replaced by ``does not differ beyond seed-to-seed variability'', since no equivalence test was performed. The Jaccard range for the uninformed initialization in the Abstract was corrected from 0.58--0.65 to 0.60--0.65, in agreement with Table~3.
+\item \textbf{Section 4.7 of the submitted version} (additional baselines planned but not run) was removed; the restriction of the comparison to PLS is now a limitation (Section~7.1).
+\item \textbf{Limitations} now also state that the gate analyses (H2--H5) use the original random reference split and that the early-stopping subset is not grouped by sample.
+\item \textbf{Data availability.} The Hugging Face revision of the Raman dataset used is now given.
+\end{enumerate}
+
+\end{document}
