@@ -11,14 +11,6 @@ keywords = {NIR spectroscopy, Chemometrics, Deep learning, Attention mechanisms,
 abstract = {Deep learning models for near-infrared (NIR) spectroscopy often function as black boxes, limiting adoption in chemometrics where interpretability is paramount. We propose a lightweight neural architecture with a prior-guided spectral gating layer that combines the predictive power of deep learning with chemometric interpretability. Unlike standard attention mechanisms, our gates are initialized from established variable importance measures (ANOVA F-statistic, VIP scores, Random Forest importance) and regularized via KL divergence to maintain statistical grounding throughout training. We validate the framework on two benchmark NIR datasets from distinct domains: Tecator (food quality, n=215, fat prediction) and Gasoline (petrochemical, n=60, octane rating). Cross-validation results demonstrate competitive performance with PLS (R2=0.86±0.04 vs 0.92 on Tecator; R2=0.93 vs 0.98 on Gasoline) while providing explicit band importance maps. Learned gates identify chemically relevant spectral regions, with the top selected band for Tecator at 931 nm corresponding to known C–H absorption for fat content. The moderate correlation between learned gates and chemometric priors (0.35–0.51) confirms that the model refines domain knowledge with data-driven learning rather than merely reproducing initialization. Our approach offers a practical compromise between black-box deep learning and traditional linear methods, particularly valuable for small-sample chemometric applications where interpretability and domain knowledge integration are essential. The compact architecture (1.7k–6.9k parameters) is deliberately designed for the small-sample regime (n=50–500), combining the end-to-end differentiable optimization paradigm of deep learning with the parameter efficiency required for reliable generalization on chemometric datasets.}
 }
 
-@misc{coelho_pgsg1,
-  author       = {Coelho, Guilherme and Carneiro, Lilian Carla and Galv{\~a}o, Arlindo and Coelho, Clarimar Jos{\'e}},
-  title        = {Prior-Guided Spectral Gating with End-to-End Optimization for {NIR} Spectroscopy: Scalable Architecture for Interpretable Regression in Small-Sample Regimes},
-  howpublished = {SSRN preprint 7070485},
-  doi          = {10.2139/ssrn.7070485},
-  year         = {2026}
-}
-
 @article{koddenbrock2026,
   author  = {Koddenbrock, M. and Lange, C. and Legner, R. and Jaeger, M. and K{\"o}gler, M. and others},
   title   = {{RamanBench}: A Large-Scale Benchmark for Machine Learning on {R}aman Spectroscopy},

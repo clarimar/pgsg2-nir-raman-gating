@@ -38,7 +38,7 @@ The corrected analysis changes the conclusion of hypothesis H1. In NIR, the gate
 
 We recognise that these changes exceed a minor revision, and we would welcome a further round of review if you consider it appropriate. We preferred to report the corrected result rather than publish a claim we now know to be unsupported. All three corrections (including the model-identity correction already described in the submitted version) are documented in Section~5 of the revised manuscript, and the revision scripts, results, and commit history are in the public repository.
 
-Finally, the submitted version cited a second study of this research program for a performance claim (NIR, $R^{2}=0.806$ versus $0.568$). That study was not accepted for publication, and the claim was based on the same fixed-$H$ baseline. We have removed the claim; the preprint is now cited only as the description of the architecture.
+Finally, the submitted version cited a second study of this research program for a performance claim (NIR, $R^{2}=0.806$ versus $0.568$). That study was not accepted for publication, its claim was based on the same fixed-$H$ baseline, and we have discontinued it. We have removed the claim and no longer cite the study; the architecture used here is fully specified in Section~4.3 of the revised manuscript and in the public repository.
 
 A point-by-point response follows, and a list of all other changes is given at the end.
 
@@ -83,13 +83,13 @@ An interesting paper, and generally very clear. I have only a few comments, all 
 \item \textbf{Sample-grouped validation (Sections 4.1, 4.6, 4.7, 5).} H1 is evaluated over ten paired splits that keep all spectra of a fruit or mixture in one partition; cross-validation folds are grouped in the same way. Grouping lowered the mean test $R^{2}$ of every model by at most 0.017 and changed no conclusion.
 \item \textbf{H1 results, Table 2, Fig.~1, Table 4 (Section 6.1).} Replaced by the ten-split results (mean $\pm$ SD and paired differences, Wilcoxon signed-rank test).
 \item \textbf{Abstract, Discussion, Conclusion.} Rewritten to separate the predictive question (modality-dependent, and opposite in direction to the submitted version) from the interpretive one (gate topology and reproducibility). Because an uninformed gate initialization reaches the same accuracy (H4), the Raman gain is attributed to the non-linear regressor rather than to the prior.
-\item \textbf{Removed claim based on the unaccepted study} (Abstract, Introduction, Section~4.6), as explained in the letter above.
+\item \textbf{Removed claim and citation of the discontinued study} (Abstract, Introduction, Sections~2, 4.1 and 4.6), as explained in the letter above.
 \item \textbf{Train/test split description.} The submitted version described the split as stratified; the code used a random split. Corrected in Table~1 and Section~4.6.
 \item \textbf{H4 wording.} ``Statistically equivalent'' was replaced by ``does not differ beyond seed-to-seed variability'', since no equivalence test was performed. The Jaccard range for the uninformed initialization in the Abstract was corrected from 0.58--0.65 to 0.60--0.65, in agreement with Table~3.
 \item \textbf{Section 4.7 of the submitted version} (additional baselines planned but not run) was removed; the restriction of the comparison to PLS is now a limitation (Section~7.1).
 \item \textbf{Limitations} now also state that the gate analyses (H2--H5) use the original random reference split and that the early-stopping subset is not grouped by sample.
 \item \textbf{Data availability.} The Hugging Face revision of the Raman dataset used is now given, together with a verified snapshot of the model and baseline code in the repository.
-\item \textbf{References.} Ref.~[2] is now cited as an SSRN preprint; Ref.~[16] now gives the inventors, patent number, and grant year (US Patent 12,372,470 B2, 2025).
+\item \textbf{References.} The discontinued study (former Ref.~[2]) is no longer cited, and references are renumbered accordingly. The patent reference (now Ref.~[15]) gives the inventors, patent number, and grant year (US Patent 12,372,470 B2, 2025).
 \end{enumerate}
 
 \end{document}
