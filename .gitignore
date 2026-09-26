@@ -8,3 +8,5 @@ __pycache__/
 *.log
 *.out
 *.toc
+revision_r1/*.pdf
+!revision_r1/h*_*.pdf
