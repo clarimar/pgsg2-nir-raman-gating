@@ -1,0 +1,41 @@
+{
+  "source_root": "/home/clarimar/Dropbox/pgsg/pgsg_1",
+  "source": {
+    "git": true,
+    "commit": "94540dac0e8bc167ad6de041903155b4179d65bd",
+    "dirty": false
+  },
+  "created_utc": "2026-09-26T20:23:17+00:00",
+  "entry_modules": [
+    "pgsg_1.ingestion",
+    "pgsg_1.ingestion.SpectralDataset",
+    "pgsg_1.ingestion.mango",
+    "pgsg_1.ingestion.mango.load_mango_dmc_v3",
+    "pgsg_1.models.base",
+    "pgsg_1.models.base.GatedModel",
+    "pgsg_1.models.pgsg",
+    "pgsg_1.models.pgsg.PGSGModel",
+    "pgsg_1.models.pls",
+    "pgsg_1.models.pls.PLSModel",
+    "pgsg_1.preprocessing.preprocessor",
+    "pgsg_1.preprocessing.preprocessor.Preprocessor"
+  ],
+  "files": {
+    "pgsg_v2.py": "3f6bd21109b4e1249fa9f33cc5eb3a05b7b7af68a398c1c6442e008917f3df33",
+    "src/pgsg_1/__init__.py": "84f192d13e28c67b78ac5532a3d4d0bbc3183d7378008c4ff4c2e4cb175131a5",
+    "src/pgsg_1/ingestion/__init__.py": "0d64eb1302d28988405e78994df9b2cead7cff396842a36d181d838d330b4ca4",
+    "src/pgsg_1/ingestion/dataset.py": "9c112d428c4c929fac79cfa01dd52c24c9f30e238e8fa044fdcbb28e0bfc7ec9",
+    "src/pgsg_1/ingestion/gasoline.py": "f15a68912ba2feea82ece17d7267e08391e5ae40cbcbdf44a93c910d4676612c",
+    "src/pgsg_1/ingestion/mango.py": "614a52393e5aed94fad8eee95121572d6d16be70893d4ba0f2d952d6d3611ef5",
+    "src/pgsg_1/ingestion/tecator.py": "aa41f6dfa36ca13d4bb79baed23ec1697ad58e96d01d83441f44c941c90ff563",
+    "src/pgsg_1/models/__init__.py": "27d8e62f71a7d26b0179ea59e6cfe842e169d5cd8a3aac248e9607ed6ca67266",
+    "src/pgsg_1/models/base.py": "a1dc8abcb9dfe00381be43dc96d7e0a6fac700b0fd26f1ea37265d2d7a96eda4",
+    "src/pgsg_1/models/cnn.py": "f1306b926e09c57855b31a7c1d2297226beca50c86e95e205f7a6bed9546aebd",
+    "src/pgsg_1/models/mlp.py": "0b38757a974f6c8bfa1365f0375bc60e19fa2d63d25ba3ba2112449e2c297884",
+    "src/pgsg_1/models/pgsg.py": "0102b99224e418435bfaa7cc21477595cca1c0491817b50bc712b9f86d79c489",
+    "src/pgsg_1/models/pls.py": "9c304d93baa60bb38c7ef86c56990d4ceb6fc6ff341eccbed1c1fca7931c06e2",
+    "src/pgsg_1/models/training.py": "ad794e397508b40145ec4e99e917520a9bb27dd5b6a7c7037a2a9bb944c5b183",
+    "src/pgsg_1/preprocessing/__init__.py": "a02baae22383c5301fbaa8e3af1a21fb1e060f7823129f9eb936f0b46bc94dfd",
+    "src/pgsg_1/preprocessing/preprocessor.py": "818c88edb3946e768fce90a8ee88eb3cdfe72969e0790ecd64f6e3bb2081de09"
+  }
+}

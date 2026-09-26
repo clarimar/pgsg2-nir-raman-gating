@@ -317,7 +317,8 @@ def summarize(runs, n_reps):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[1])
-    ap.add_argument("--pgsg1-root", required=True)
+    ap.add_argument("--pgsg1-root", default=str(Path(__file__).resolve().parents[1] / "vendor" / "pgsg_1"),
+                    help="pgsg_1 root (default: vendored snapshot in vendor/pgsg_1)")
     ap.add_argument("--csv-path", required=True, help="MangoDMC_NIR_Data_v3.csv")
     ap.add_argument("--pgsg2-root", default=str(Path(__file__).resolve().parents[1]),
                     help="pgsg2-nir-raman-gating repo root (default: this script's repo)")
