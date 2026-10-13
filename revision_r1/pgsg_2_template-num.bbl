@@ -1,0 +1,85 @@
+\begin{thebibliography}{10}
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\expandafter\ifx\csname href\endcsname\relax
+  \def\href#1#2{#2} \def\path#1{#1}\fi
+
+\bibitem{coelho_pgsg0}
+G.~Coelho, A.~{de Lima das Chagas}, L.~C. Carneiro, C.~J. Coelho,
+  \href{https://www.sciencedirect.com/science/article/pii/S0169743926002066}{Prior-guided
+  spectral gating for interpretable deep learning in near-infrared
+  spectroscopy}, Chemometrics and Intelligent Laboratory Systems (2026)
+  105833\href {https://doi.org/https://doi.org/10.1016/j.chemolab.2026.105833}
+  {\path{doi:https://doi.org/10.1016/j.chemolab.2026.105833}}.
+\newline\urlprefix\url{https://www.sciencedirect.com/science/article/pii/S0169743926002066}
+
+\bibitem{workman2012nir}
+J.~Workman, Jr., L.~Weyer, Practical Guide and Spectral Atlas for Interpretive
+  Near-Infrared Spectroscopy, 2nd Edition, CRC Press, 2012.
+
+\bibitem{smith2019raman}
+E.~Smith, G.~Dent, Modern {R}aman Spectroscopy: A Practical Approach, 2nd
+  Edition, Wiley, 2019.
+
+\bibitem{anderson2020}
+N.~T. Anderson, K.~B. Walsh, P.~P. Subedi, C.~H. Hayes, Achieving robustness
+  across season, location and cultivar for a {NIRS} model for intact mango
+  fruit dry matter content, Postharvest Biology and Technology 168 (2020)
+  111202.
+
+\bibitem{saranwong2004}
+S.~Saranwong, J.~Sornsrivichai, S.~Kawano, Prediction of ripe-stage eating
+  quality of mango fruit from its harvest quality measured nondestructively by
+  near infrared spectroscopy, Postharvest Biology and Technology 31 (2004)
+  253--261.
+
+\bibitem{lange2026}
+C.~Lange, et~al., Deep learning for {R}aman spectroscopy: Benchmarking models
+  for upstream bioprocess monitoring, Measurement 258 (2026) 118884.
+
+\bibitem{koddenbrock2026}
+M.~Koddenbrock, C.~Lange, R.~Legner, M.~Jaeger, M.~K{\"o}gler, et~al.,
+  {RamanBench}: A large-scale benchmark for machine learning on {R}aman
+  spectroscopy, arXiv preprint arXiv:2605.02003 (2026).
+
+\bibitem{echtermeyer2021}
+A.~Echtermeyer, C.~Marks, A.~Mitsos, J.~Viell, Inline {R}aman spectroscopy and
+  indirect hard modeling for concentration monitoring of dissociated acid
+  species, Applied Spectroscopy 75~(5) (2021) 506--519.
+
+\bibitem{barnes1989snv}
+R.~J. Barnes, M.~S. Dhanoa, S.~J. Lister, Standard normal variate
+  transformation and de-trending of near-infrared diffuse reflectance spectra,
+  Applied Spectroscopy 43~(5) (1989) 772--777.
+
+\bibitem{whitaker2018}
+D.~A. Whitaker, K.~Hayes, A simple algorithm for despiking {R}aman spectra,
+  Chemometrics and Intelligent Laboratory Systems 179 (2018) 82--84.
+
+\bibitem{eilers2005}
+P.~H.~C. Eilers, H.~F.~M. Boelens, Baseline correction with asymmetric least
+  squares smoothing, Tech. rep., Leiden University Medical Centre (2005).
+
+\bibitem{kingma2015adam}
+D.~P. Kingma, J.~Ba, Adam: A method for stochastic optimization, in:
+  Proceedings of the 3rd International Conference on Learning Representations
+  ({ICLR}), 2015, arXiv:1412.6980.
+
+\bibitem{lyu2012}
+N.~Lyu, et~al., In vivo blood glucose quantification using {R}aman
+  spectroscopy, PLOS ONE 7~(11) (2012) e48127.
+
+\bibitem{kang2020}
+J.~W. Kang, et~al., Direct observation of glucose fingerprint using in vivo
+  {R}aman spectroscopy, Science Advances 6~(4) (2020) eaay5206.
+
+\bibitem{uspatent2024}
+J.~Moretto, B.~Berry, A.~Doane, Use of {R}aman spectroscopy to monitor culture
+  medium, US Patent 12,372,470 B2, assigned to Biogen MA Inc. (2025).
+
+\bibitem{hoyer2004}
+P.~O. Hoyer, Non-negative matrix factorization with sparseness constraints,
+  Journal of Machine Learning Research 5 (2004) 1457--1469.
+
+\end{thebibliography}

@@ -1,0 +1,48 @@
+This is BibTeX, Version 0.99d (TeX Live 2025/Debian)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: pgsg_2_template-num.aux
+The style file: elsarticle-num.bst
+Database file #1: pgsg_2_refs.bib
+Warning--empty pages in kingma2015adam
+You've used 16 entries,
+            2952 wiz_defined-function locations,
+            763 strings with 7894 characters,
+and the built_in function-call counts, 4578 in all, are:
+= -- 422
+> -- 152
+< -- 4
++ -- 60
+- -- 44
+* -- 301
+:= -- 647
+add.period$ -- 16
+call.type$ -- 16
+change.case$ -- 20
+chr.to.int$ -- 12
+cite$ -- 17
+duplicate$ -- 142
+empty$ -- 525
+format.name$ -- 59
+if$ -- 1185
+int.to.chr$ -- 0
+int.to.str$ -- 16
+missing$ -- 16
+newline$ -- 57
+num.names$ -- 16
+pop$ -- 109
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 298
+stack$ -- 0
+substring$ -- 231
+swap$ -- 22
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 1
+while$ -- 33
+width$ -- 18
+write$ -- 138
+(There was 1 warning)
