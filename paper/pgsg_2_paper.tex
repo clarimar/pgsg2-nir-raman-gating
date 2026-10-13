@@ -14,28 +14,29 @@
 
 \begin{frontmatter}
 
-\title{Prior-Guided Spectral Gating Generalizes Across Spectroscopic Modalities: Evidence from Near-Infrared and Raman Spectroscopy}
+\title{Gate Topology and Reproducibility of Prior-Guided Spectral Gating Across Near-Infrared and Raman Spectroscopy}
 
 % *** PLACEHOLDER: author list, order, and affiliations have not been
 % confirmed by the corresponding author. Verify before submission. ***
+%\author{Guilherme Coelho$^a$, Clarimar José Coelho$^c$} %% Author name
+
+ 
+\author[unicamp]{Guilherme Coelho}
 \author[puc]{Clarimar José Coelho\corref{cor1}}
 \ead{clarimar@pucgoias.edu.br}
-\author[puc]{Guilherme Coelho}
-\author[puc]{Angélica Chagas}
-\author[puc]{Lilian Carla Carneiro}
-\author[unicamp]{Letícia Ritner}
-\author[puc]{Marcos Lajovic Carneiro}
-\author[ufg]{Arlindo Rodrigues Galvão Filho}
-\author[ufpb]{Edvan Cirino da Silva}
-
 \cortext[cor1]{Corresponding author.}
-\address[puc]{Pontifícia Universidade Católica de Goiás (PUC Goiás), Goiânia, Brazil}
-\address[unicamp]{Universidade Estadual de Campinas (Unicamp), Campinas, Brazil}
-\address[ufg]{Universidade Federal de Goiás (UFG), Goiânia, Brazil}
-\address[ufpb]{Universidade Federal da Paraíba (UFPB), João Pessoa, Brazil}
+\address[unicamp]{State University of Campinas, 
+            Cidade Universitária Zeferino Vaz - Barão Geraldo, 
+            Campinas,
+            13083--970, 
+            São Paulo,
+            Brazil}
+\address[puc]{Postgraduate Program in Industrial Engineering and Artificial Intelligence Pontificia Universidade Catolica de Goias, Primeira Avenida, s/n - Quadra 88 - Setor Leste Universitário, 
+            Goiânia, 74605--010, Goiás, Brazil} 
+
 
 \begin{abstract}
-Prior-Guided Spectral Gating (PGSG) is a chemometrically-informed spectral attention mechanism that combines a learnable per-band gate, initialized from a literature-derived prior, with an end-to-end regressor. The mechanism has previously been validated exclusively on near-infrared (NIR) spectroscopy, first at small sample sizes and subsequently at scale ($n\approx1{,}448$ mango dry-matter-content spectra, $R^{2}=0.806$ versus $0.568$ for partial least squares, PLS). In this study we test whether the mechanism generalizes, without any architectural modification, to a second spectroscopic modality with markedly different physical structure: Raman spectroscopy. Using a public bioprocess-monitoring benchmark ($n=6{,}472$ spectra, 1,870 Raman-shift variables, glucose concentration as the regression target), we show that the unmodified model --- an independent sigmoid gate per variable feeding a shallow multilayer perceptron, trained end-to-end by backpropagation --- outperforms PLS in Raman as well ($\Delta R^{2}_{\mathrm{PLS}}=+0.025$), reproducing the NIR result at a smaller magnitude ($\Delta R^{2}_{\mathrm{PLS}}=+0.244$ in NIR). We further formalize three quantitative descriptors of learned-gate topology --- entropy, smoothness, and Hoyer sparsity --- and show that Raman gates are more sparse than NIR gates ($0.415$ versus $0.235$--$0.318$, robust to the functional form of the prior) and, once smoothness is correctly normalized by physical band density, smoother in NIR than in Raman, in agreement with raw-spectrum evidence. A literature-informed prior does not improve predictive accuracy over an uninformed initialization in either modality, but substantially increases the reproducibility of the learned gate across random seeds (pairwise Jaccard similarity of the top-weighted decile of bands: $0.90$--$0.94$ versus $0.58$--$0.65$), indicating that the principal value of the prior is interpretive stability rather than accuracy. A finer-grained test correlating local gate structure with literature-reported vibrational linewidths, band by band, did not yield a robust correlation. We report this null result, together with an intermediate finding traced to a specific methodological artifact and a model-identity error that initially reversed our main conclusion, as part of a fully transparent account of the research process.
+Prior-Guided Spectral Gating (PGSG) is a spectral attention mechanism in which a learnable per-variable sigmoid gate, initialized from a literature-derived prior, weights the spectrum before a shallow multilayer perceptron. It has so far been studied only on near-infrared (NIR) spectroscopy. We apply the unmodified architecture to public NIR ($n=1{,}448$, mango dry matter) and Raman ($n=6{,}472$, glucose) benchmarks and ask three questions: whether the model outperforms partial least squares (PLS), how the learned gate topology differs between modalities, and what a literature-informed prior contributes. Against PLS with the number of latent variables selected by cross-validation (one-standard-error rule), and with train/test splits that keep replicate spectra of the same sample together, the model does not outperform PLS in NIR (paired $\Delta R^{2}=-0.108\pm0.031$ over ten splits, lower in all ten) but does in Raman ($\Delta R^{2}=+0.036\pm0.007$, higher in all ten). The NIR advantage reported with a fixed, under-parameterized PLS baseline ($+0.23$) disappears once the baseline is calibrated. The learned gates nevertheless differ between modalities in a physically consistent way: Raman gates are sparser than NIR gates, and NIR gates are smoother once smoothness is normalized by physical band density, a correction we show to be necessary. A literature-informed prior does not change accuracy but substantially increases gate reproducibility across training seeds (pairwise Jaccard similarity $0.90$--$0.94$ versus $0.60$--$0.65$); a control that measures the reproducibility of the learned displacement, rather than of the final gate, shows this to be a property of what the model learns and not of the shared initialization. A band-level test relating local gate structure to vibrational linewidths was negative. Since an uninformed initialization reaches the same accuracy, the predictive gain in Raman belongs to the non-linear regressor rather than to the prior, whose value lies in interpretive stability. Predictive claims for neural spectral models require a baseline whose complexity is selected from the data and a validation design that respects replicate structure.
 \end{abstract}
 
 \begin{keyword}
@@ -49,16 +50,16 @@ spectral gating \sep interpretable deep learning \sep Raman spectroscopy \sep ne
 \section{Introduction}
 \label{sec:intro}
 
-Prior-Guided Spectral Gating (PGSG) is a chemometrically-informed attention mechanism for spectroscopic regression, in which a learnable gate $g\in(0,1)^{p}$ over $p$ spectral variables is initialized from a literature-derived prior $s$, rather than from the training data, and multiplies the input spectrum before a downstream regressor. The mechanism was originally established on near-infrared (NIR) spectroscopy at small sample sizes \cite{coelho_pgsg0}. A subsequent study revised the architecture --- replacing an earlier formulation, in which a softmax gate weighted a partial-least-squares (PLS) regressor optimized by finite-difference gradients, with an independent sigmoid gate per variable feeding a lightweight multilayer perceptron (MLP) trained end-to-end via automatic differentiation --- and showed that the revised model, hereafter \texttt{PGSGv2Model}, retains a predictive advantage over PLS at substantially larger sample sizes ($n\approx1{,}448$, mango dry-matter content via NIR, $R^{2}=0.806$ versus $0.568$) \cite{coelho_pgsg1,anderson2020}.
+Prior-Guided Spectral Gating (PGSG) is a chemometrically-informed attention mechanism for spectroscopic regression, in which a learnable gate $g\in(0,1)^{p}$ over $p$ spectral variables is initialized from a literature-derived prior $s$, rather than from the training data, and multiplies the input spectrum before a downstream regressor. The mechanism was originally established on near-infrared (NIR) spectroscopy at small sample sizes \cite{coelho_pgsg0}. The present study uses a revised formulation of the architecture, developed within the same research program and fully specified in Section~\ref{sec:architecture}: the gate of the original formulation, a temperature-scaled softmax normalized over all spectral variables, is replaced by an independent sigmoid gate per variable, hereafter \texttt{PGSGv2Model}. Both formulations feed a compact MLP and are trained end to end by automatic differentiation; the change removes the coupling that a normalized softmax imposes between the weights of different variables, under which raising one gate necessarily lowers the others.
 
-Both studies validated PGSG exclusively on NIR, leaving open a basic question about the generality of the mechanism: does prior-guided gating help because of a property specific to NIR spectra, or does it reflect a principle applicable across spectroscopic modalities with different physical structure? NIR spectra are dominated by broad, overlapping overtone and combination bands, in which analyte-relevant signal is typically diluted across many correlated wavelengths \cite{workman2012nir}. Raman spectra, by contrast, exhibit narrow, well-resolved vibrational peaks superimposed on a comparatively flat baseline \cite{smith2019raman}. If the value of prior-guided gating in NIR derives from down-weighting broad, uninformative regions in favor of a chemically relevant subset, the mechanism might contribute comparatively little in a modality where informative peaks are already narrow and readily isolated by the regressor.
+PGSG has so far been evaluated exclusively on NIR, leaving open a basic question about the generality of the mechanism: does prior-guided gating help because of a property specific to NIR spectra, or does it reflect a principle applicable across spectroscopic modalities with different physical structure? NIR spectra are dominated by broad, overlapping overtone and combination bands, in which analyte-relevant signal is typically diluted across many correlated wavelengths \cite{workman2012nir}. Raman spectra, by contrast, exhibit narrow, well-resolved vibrational peaks superimposed on a broad fluorescence background, which becomes approximately flat only after baseline correction \cite{smith2019raman}. If the value of prior-guided gating in NIR derives from down-weighting broad, uninformative regions in favor of a chemically relevant subset, the mechanism might contribute comparatively little in a modality where informative peaks are already narrow and readily isolated by the regressor.
 
-We test this directly by applying the unmodified \texttt{PGSGv2Model} architecture to a Raman regression task and by formalizing quantitative descriptors of learned-gate topology --- entropy, smoothness, and sparsity --- to characterize \emph{how}, not merely \emph{whether}, gate structure differs between the two modalities. We evaluate five falsifiable hypotheses (Section~\ref{sec:hypotheses}) end to end on public NIR and Raman benchmarks and, in the interest of transparency, document a model-identity error made during execution of this study that initially produced results opposite to those reported here for the central hypothesis (Section~\ref{sec:model-identity}).
+We test this directly by applying the unmodified \texttt{PGSGv2Model} architecture to a Raman regression task, by comparing it against a PLS baseline whose number of latent variables is selected by cross-validation, and by formalizing quantitative descriptors of learned-gate topology --- entropy, smoothness, and sparsity --- to characterize \emph{how}, not merely \emph{whether}, gate structure differs between the two modalities. We evaluate five falsifiable hypotheses (Section~\ref{sec:hypotheses}) end to end on public NIR and Raman benchmarks and, in the interest of transparency, document two corrections made during this study: a model-identity error during execution, and a fixed-complexity PLS baseline in the submitted version whose calibration reversed the conclusion for H1 (Section~\ref{sec:model-identity}).
 
 \section{Scope}
 \label{sec:scope}
 
-An early planning stage of this work considered simultaneous generalization to four modalities: NIR, Raman, mid-infrared (MIR), and mass spectrometry (MS). This scope was narrowed to two modalities for two reasons. First, validating across four modalities within a single study risks the inverse of a problem already identified and corrected in prior work \cite{coelho_pgsg1}: an empirical scope exceeding what can be executed and tested with rigor. Second, the physical argument motivating spectral gating --- correlation between adjacent positions along a continuous spectral axis --- does not hold for MS, whose signals are discrete mass-to-charge values without an analogous local neighborhood structure; including MS without adapting the gating operator itself would constitute a weak extension. MIR and MS therefore remain outside the empirical scope of this study.
+An early planning stage of this work considered simultaneous generalization to four modalities: NIR, Raman, mid-infrared (MIR), and mass spectrometry (MS). This scope was narrowed to two modalities for two reasons. First, validating across four modalities within a single study would create an empirical scope exceeding what can be executed and tested with rigor. Second, the physical argument motivating spectral gating --- correlation between adjacent positions along a continuous spectral axis --- does not hold for MS, whose signals are discrete mass-to-charge values without an analogous local neighborhood structure; including MS without adapting the gating operator itself would constitute a weak extension. MIR and MS therefore remain outside the empirical scope of this study.
 
 \section{Hypotheses}
 \label{sec:hypotheses}
@@ -77,9 +78,9 @@ An early planning stage of this work considered simultaneous generalization to f
 \subsection{Datasets}
 \label{sec:datasets}
 
-The NIR branch reuses the Mango DMC v3 dataset (dry-matter content, \%; $n=1{,}448$ in Season~4, the invariant test season used throughout) \cite{anderson2020} and the associated literature-derived prior from the prior study \cite{coelho_pgsg1,saranwong2004}. The Raman branch uses \texttt{bioprocess\_substrates} \cite{lange2026}, a bioprocess-monitoring benchmark accessed through the RamanBench collection \cite{koddenbrock2026}, with glucose concentration as the regression target. Of 6,960 spectra in the source dataset, 6,472 carry a valid glucose label and were retained ($p=1{,}870$ Raman-shift variables spanning 390.6--3384.7~cm$^{-1}$). Table~\ref{tab:datasets} summarizes both branches.
+The NIR branch reuses the Mango DMC v3 dataset (dry-matter content, \%; $n=1{,}448$ spectra from Season~4) \cite{anderson2020}, with a literature-derived prior \cite{saranwong2004} (Section~\ref{sec:priors}). The Raman branch uses \texttt{bioprocess\_substrates} \cite{lange2026}, a bioprocess-monitoring benchmark accessed through the RamanBench collection \cite{koddenbrock2026}, with glucose concentration as the regression target. Of 6,960 spectra in the source dataset, 6,472 carry a valid glucose label and were retained ($p=1{,}870$ Raman-shift variables spanning 390.6--3384.7~cm$^{-1}$). Both datasets contain replicate spectra of the same physical sample: the 1,448 NIR spectra come from 725 fruits (723 fruits measured twice, with identical metadata and dry-matter value), and the 6,472 Raman spectra from 3,191 distinct mixtures (identical concentration vectors; mostly duplicate acquisitions). Table~\ref{tab:datasets} summarizes both branches.
 
-This dataset was selected, among 58 regression datasets available in RamanBench, on the basis of three criteria: a real (non-simulated) measurement, a single chemically interpretable target, and a sample size of the same order of magnitude as the NIR branch ($n\approx12{,}000$). The latter criterion avoids the small-sample regime that characterizes most publicly available Raman regression datasets and that would otherwise confound modality with sample size; alternative candidates considered and not selected for this reason include organic-acid concentration datasets from inline process monitoring \cite{echtermeyer2021}, which are real measurements but of substantially smaller sample size.
+This dataset was selected, among 58 regression datasets available in RamanBench, on the basis of three criteria: a real (non-simulated) measurement, a single chemically interpretable target, and a sample size in the thousands, comparable to that of the NIR branch ($n=6{,}472$ Raman versus $n=1{,}448$ NIR). The latter criterion avoids the small-sample regime that characterizes most publicly available Raman regression datasets and that would otherwise confound modality with sample size; alternative candidates considered and not selected for this reason include organic-acid concentration datasets from inline process monitoring \cite{echtermeyer2021}, which are real measurements but of substantially smaller sample size.
 
 \begin{table}[htbp]
 \centering
@@ -91,10 +92,11 @@ This dataset was selected, among 58 regression datasets available in RamanBench,
 \midrule
 Dataset & Mango DMC v3, Season 4 & \texttt{bioprocess\_substrates} \\
 Target & Dry matter content (\%) & Glucose concentration \\
-$n$ (valid samples) & 1,448 & 6,472 \\
+$n$ (valid spectra) & 1,448 & 6,472 \\
+Physical samples & 725 fruits & 3,191 mixtures \\
 $p$ (variables, after cleaning) & 281 & 1,870 \\
 Spectral range & 285--1200~nm & 390.6--3384.7~cm$^{-1}$ \\
-Train/test split & 80/20, stratified & 80/20, stratified \\
+Train/test split (H1) & 80/20, grouped by fruit & 80/20, grouped by mixture \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -104,10 +106,17 @@ Train/test split & 80/20, stratified & 80/20, stratified \\
 The NIR branch reuses the existing preprocessing operator unchanged: removal of instrument-edge bands with systematically zero values, followed by standard normal variate (SNV) normalization \cite{barnes1989snv}. For Raman, the preprocessing chain --- extended, not rewritten, from the same software contract --- comprises: (i) cosmic-ray removal via a modified Z-score computed on the first derivative \cite{whitaker2018}, restricted to contiguous runs of at most three points so that the steep edges of genuine narrow Raman peaks are not misidentified as spikes; (ii) baseline correction by asymmetric least squares \cite{eilers2005}, removing the fluorescence background characteristic of Raman measurements; and (iii) SNV normalization.
 
 \subsection{Architecture}
+\label{sec:architecture}
 
-Both branches use the identical \texttt{PGSGv2Model}: an independent sigmoid gate per variable, $g_i=\sigma(\theta_i)$, multiplying the input spectrum elementwise, followed by a shallow MLP (one hidden layer, 32 units, ReLU activation, dropout), trained end-to-end by backpropagation (Adam optimizer \cite{kingma2015adam}, weight decay $10^{-4}$, early stopping on a held-out validation split). The gate parameters $\theta$ are initialized from a prior $s\in(0,1)^{p}$ through the logit transform, $\theta_0=\mathrm{logit}(s)$, so that $g$ starts exactly at $s$. No architectural component differs between modalities; this identity constitutes the condition under which H1 is tested.
+Let $\theta\in\mathbb{R}^{p}$ be the vector of gate parameters, one per spectral variable. The gate is obtained by applying the logistic sigmoid elementwise,
+\begin{equation}
+g_i=\sigma(\theta_i)=\frac{1}{1+e^{-\theta_i}}\in(0,1), \qquad i=1,\dots,p,
+\label{eq:gate}
+\end{equation}
+and the gated spectrum $x\odot g$ (elementwise product) is passed to a shallow MLP with one hidden layer of 32 units, ReLU activation, and dropout. Both branches use this identical model, \texttt{PGSGv2Model}. The gate parameters $\theta$ and the MLP weights are trained jointly, end to end, by backpropagation (Adam optimizer \cite{kingma2015adam}, weight decay $10^{-4}$). Early stopping monitors the loss on a validation subset of 20\% of the training partition, selected systematically after sorting the training samples by target value so that it spans the target range; this selection is deterministic and therefore identical across training seeds, so that seed-to-seed variation reflects only the initialization of the MLP weights and the order of mini-batches. The test partition is never used for training, early stopping, or model selection. Before training, $\theta$ is initialized from a prior $s\in(0,1)^{p}$ through the logit transform, $\theta_0=\mathrm{logit}(s)$, so that $g$ starts exactly at $s$. No architectural component differs between modalities; this identity constitutes the condition under which H1 is tested.
 
 \subsection{Priors}
+\label{sec:priors}
 
 For NIR, the prior is a fixed step function over three literature-derived spectral regions relevant to dry matter content --- 680--700~nm (chlorophyll), 900--1000~nm (second C--H overtone), and 1100--1200~nm (first C--H overtone) \cite{saranwong2004} --- independent of the training data. For Raman, the prior is a mixture of Gaussian components centered on literature-reported glucose Raman bands, at two confidence tiers: three primary bands (911, 1060, and 1125~cm$^{-1}$) supported by multiple independent sources \cite{lyu2012,kang2020}, and a secondary set of sixteen bands specific to bioprocess culture-medium monitoring, from a single source \cite{uspatent2024}. In both modalities the prior is constructed solely from published band assignments, never from the experiment's own training data --- a design choice made to avoid the circularity that would result from deriving the prior and the target from the same sample.
 
@@ -120,48 +129,56 @@ H(g) &= -\sum_{i=1}^{p} \hat g_i \log \hat g_i, \qquad \hat g_i = \frac{g_i}{\su
 \mathrm{TV}(g) &= \frac{1}{p-1}\sum_{i=1}^{p-1} |g_i - g_{i+1}| \label{eq:tv}\\
 S(g) &= \frac{\sqrt{p}-\|g\|_1/\|g\|_2}{\sqrt{p}-1} \in [0,1] \label{eq:hoyer}
 \end{align}
-where Eq.~\eqref{eq:hoyer} is the sparsity index of \cite{hoyer2004}; $S(g)=0$ corresponds to a uniformly dense gate and $S(g)=1$ to a one-hot gate. Cross-modality comparison of $\mathrm{TV}(g)$ requires an additional normalization by physical band density, described in Section~\ref{sec:results-h2h3}.
+where Eq.~\eqref{eq:hoyer} is the sparsity index of Hoyer \cite{hoyer2004}; $S(g)=0$ corresponds to a uniformly dense gate and $S(g)=1$ to a one-hot gate. Cross-modality comparison of $\mathrm{TV}(g)$ requires an additional normalization by physical band density, described in Section~\ref{sec:results-h2h3}.
 
 \subsection{Experimental protocol}
 
-All experiments use a within-dataset (intra-domain) protocol: a fixed, disjoint test split (80/20, stratified where applicable) within each dataset, avoiding cross-domain comparisons that prior work found to substantially degrade performance --- a cross-season protocol on the NIR dataset reduced PLS $R^{2}$ to approximately $0.06$ \cite{coelho_pgsg1}.
+All experiments use a within-dataset (intra-domain) protocol with randomly drawn 80/20 train/test splits. The gate analyses (H2--H5) use a single reference split (random seed 42) that, as in the submitted version, does not keep replicate spectra of the same sample together; the predictive comparison (H1) uses ten additional splits grouped by sample, described in Section~\ref{sec:pls}. Cross-season or cross-instrument protocols were deliberately avoided, because the distribution shift they introduce would confound the modality comparison with domain shift.
 
-\subsection{Additional baselines}
-\label{sec:baselines}
 
-Beyond PLS, the broader research program plans to include ABRN \cite{huang2019}, an attention-based residual network without prior guidance; SpecFuseNet \cite{kabiso2025}, a residual autoencoder with channel attention; and sparse linear baselines (Elastic Net, sparse PLS). These additional comparisons address predictive performance only, not gate topology, and do not alter the scope of H1--H5.
+\subsection{PLS baseline and H1 protocol}
+\label{sec:pls}
 
-\section{A note on model identity}
+The number of PLS latent variables $H$ was selected on the training partition only, by 5-fold cross-validation over $H=1,\dots,120$, with folds formed by whole samples (fruit or mixture), using two rules: the minimum of the mean cross-validated squared error (PLS-cvmin) and the smallest $H$ whose error lies within one standard error of that minimum (PLS-1se). PLS-1se is the pre-declared reference for H1. PLS with a fixed $H=10$ (PLS-10), the baseline of the submitted version of this manuscript, is reported for comparison. H1 was evaluated over ten random 80/20 splits of whole samples ($r=0,\dots,9$), so that no fruit or mixture contributes spectra to both partitions; in split $r$, all models are fitted on the same training partition and \texttt{PGSGv2Model} uses random seed $r$, so that comparisons are paired. H1 is considered supported in a modality if the mean paired difference $\Delta R^{2}=R^{2}_{\mathrm{PGSGv2}}-R^{2}_{\mathrm{PLS\text{-}1se}}$ is positive and a two-sided Wilcoxon signed-rank test gives $p<0.05$.
+
+\section{Notes on model identity and baseline calibration}
 \label{sec:model-identity}
 
 During execution of this study, an earlier and never-published PGSG implementation --- a softmax gate over a PLS regressor optimized by finite-difference gradients --- was inadvertently substituted for \texttt{PGSGv2Model} in an initial round of Raman experiments. This earlier implementation had never been used to produce any previously published result. Under it, gate training on Raman terminated at the very first epoch, with no improvement over the prior-initialized gate at any subsequent step, and $\Delta R^{2}_{\mathrm{PLS}}\approx0$, leading to an initial and incorrect conclusion that H1 was not supported, tentatively attributed to gate over-parameterization. Once the discrepancy was identified and the correct architecture substituted, the opposite result was obtained (Section~\ref{sec:results-h1}). We report this explicitly, together with the diagnostic evidence for both versions, as part of a transparent scientific record; the associated code, data, and commit history are publicly available (Section~\ref{sec:availability}).
 
+A second correction concerns the PLS baseline. In the submitted version of this manuscript, PLS used a fixed number of latent variables ($H=10$), a value inherited from an earlier dataset and not re-selected for the present ones. During revision, $H$ was selected by cross-validation on the training data (Section~\ref{sec:pls}). In NIR, the one-standard-error rule selected $H$ between 46 and 72 (minimum-error rule: 78--92), and the calibrated baseline reversed the conclusion for H1 in that modality; in Raman, $H$ between 4 and 8 was selected and the conclusion was unchanged (Section~\ref{sec:results-h1}). A third correction concerns replicate spectra: the submitted version split spectra at random, so that the two spectra of a fruit or mixture could fall into both partitions. The revised H1 analysis splits whole samples. Relative to random splits, grouping lowered the mean test $R^{2}$ of every model by at most $0.017$ and changed no conclusion. Both the fixed-$H$ and the calibrated results are reported, and the revision scripts are in the public repository.
+
 \section{Results}
 \label{sec:results}
 
-\subsection{H1: generalization without architectural change}
+\subsection{H1: predictive performance against PLS}
 \label{sec:results-h1}
 
-\texttt{PGSGv2Model}, applied to the Raman dataset without architectural modification, outperforms PLS (Table~\ref{tab:h1}, Fig.~\ref{fig:h1}): $R^{2}_{\mathrm{PLS}}=0.9044$, $R^{2}_{\mathrm{PGSGv2}}=0.9290$, $\Delta R^{2}_{\mathrm{PLS}}=+0.0246$. Under the identical protocol, the NIR branch yields $R^{2}_{\mathrm{PLS}}=0.5684$, $R^{2}_{\mathrm{PGSGv2}}=0.8128$, $\Delta R^{2}_{\mathrm{PLS}}=+0.2444$. Both results reflect genuine gate training rather than a frozen initialization: the best validation epoch occurs at epoch~79 (of up to 500, patience 30) in Raman and epoch~469 in NIR, and the correlation between the learned gate and its initializing prior falls to $\rho=0.978$ (Raman) and $\rho=0.998$ (NIR) --- a measurable, if modest, departure from initialization in both cases. \textbf{H1 is supported.}
+Table~\ref{tab:h1} and Fig.~\ref{fig:h1} report test-set $R^{2}$ over ten paired splits grouped by sample. In NIR, \texttt{PGSGv2Model} ($R^{2}=0.794\pm0.024$) is outperformed by calibrated PLS ($0.902\pm0.016$ for PLS-1se, $0.907\pm0.016$ for PLS-cvmin): the paired difference is $\Delta R^{2}=-0.108\pm0.031$, negative in all ten splits (Wilcoxon $p=0.002$). Against PLS-10 the same model appears to outperform PLS by $\Delta R^{2}=+0.231\pm0.035$, which reproduces the advantage reported in the submitted version ($+0.244$ on the reference split); that advantage is therefore attributable entirely to an under-parameterized baseline, since the cross-validation error of PLS keeps decreasing well beyond $H=10$. In Raman, \texttt{PGSGv2Model} ($R^{2}=0.932\pm0.008$) outperforms calibrated PLS ($0.896\pm0.011$ for PLS-1se, $0.902\pm0.011$ for PLS-cvmin): $\Delta R^{2}=+0.036\pm0.007$, positive in all ten splits (Wilcoxon $p=0.002$). Here the fixed baseline was already close to the calibrated one ($H$ of 4--8 selected), and the advantage is essentially that of the submitted version. \textbf{H1 is not supported in NIR and is supported in Raman.}
+
+On the reference split used for the gate analyses, training proceeds well past the first epoch in both modalities --- the best validation epoch is 79 (of up to 500, patience 30) in Raman and 469 in NIR --- while the learned gate remains close to its initialization in correlation, $\rho=0.978$ (Raman) and $\rho=0.998$ (NIR). These two facts are compatible: the prior supplies a strong structure, so a substantive movement of the gate still leaves the correlation with the starting point high. Section~\ref{sec:results-h4} quantifies that movement directly.
 
 \begin{table}[htbp]
 \centering
-\caption{H1: predictive performance, PLS versus \texttt{PGSGv2Model}.}
+\caption{H1: test-set $R^{2}$ (mean $\pm$ SD over ten paired random splits) and paired difference with respect to \texttt{PGSGv2Model}. Splits keep all spectra of a fruit (NIR) or mixture (Raman) in the same partition. $H$ selected by the one-standard-error rule: 46--72 (NIR), 4--5 (Raman); minimum-error rule: 78--92 (NIR), 7--8 (Raman).}
 \label{tab:h1}
-\begin{tabular}{lccc}
+\begin{tabular}{lcccc}
 \toprule
-Modality & $R^{2}_{\mathrm{PLS}}$ & $R^{2}_{\mathrm{PGSGv2}}$ & $\Delta R^{2}_{\mathrm{PLS}}$ \\
+& \multicolumn{2}{c}{NIR} & \multicolumn{2}{c}{Raman} \\
+Model & $R^{2}$ & $\Delta R^{2}$ & $R^{2}$ & $\Delta R^{2}$ \\
 \midrule
-NIR & 0.5684 & 0.8128 & $+0.2444$ \\
-Raman & 0.9044 & 0.9290 & $+0.0246$ \\
+PLS-10 ($H=10$) & $0.563\pm0.043$ & $+0.231\pm0.035$ & $0.900\pm0.010$ & $+0.032\pm0.004$ \\
+PLS-cvmin & $0.907\pm0.016$ & $-0.113\pm0.029$ & $0.902\pm0.011$ & $+0.030\pm0.005$ \\
+PLS-1se & $0.902\pm0.016$ & $-0.108\pm0.031$ & $0.896\pm0.011$ & $+0.036\pm0.007$ \\
+\texttt{PGSGv2Model} & $0.794\pm0.024$ & --- & $0.932\pm0.008$ & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.7\linewidth]{h1_performance.pdf}
-\caption{Predictive performance ($R^{2}$, held-out test set) of PLS and \texttt{PGSGv2Model} in each modality.}
+\includegraphics[width=\linewidth]{h1_performance.pdf}
+\caption{H1: test-set $R^{2}$ over ten paired splits, grouped by sample, for PLS with fixed $H=10$, PLS with cross-validated $H$ (cvmin and one-standard-error rules), and \texttt{PGSGv2Model}. Bars: mean; error bars: SD; points: individual splits.}
 \label{fig:h1}
 \end{figure}
 
@@ -184,7 +201,7 @@ Recomputing smoothness per unit of physical bandwidth --- converting the NIR axi
 \subsection{H4: value of a physically motivated prior}
 \label{sec:results-h4}
 
-Across ten training seeds per condition, predictive performance is statistically equivalent between literature-informed and uninformed (zero) initialization in both modalities (Table~\ref{tab:h4}): NIR, $R^{2}_{\mathrm{lit}}=0.7933\pm0.0080$ versus $R^{2}_{\mathrm{rand}}=0.7983\pm0.0077$; Raman, $R^{2}_{\mathrm{lit}}=0.9302\pm0.0015$ versus $R^{2}_{\mathrm{rand}}=0.9310\pm0.0014$. Gate stability across seeds, in contrast, differs sharply and consistently in favor of the informed prior (Fig.~\ref{fig:h4}): pairwise gate correlation $\rho=0.9995$ (NIR, literature prior) versus $0.8653$ (NIR, uninformed), and $0.9976$ (Raman, literature prior) versus $0.8931$ (Raman, uninformed); pairwise Jaccard similarity of the top-weighted decile of variables, $0.9418$ (NIR, literature prior) versus $0.6002$ (NIR, uninformed), and $0.9011$ (Raman, literature prior) versus $0.6545$ (Raman, uninformed).
+Across ten training seeds per condition, predictive performance does not differ between literature-informed and uninformed (zero) initialization beyond seed-to-seed variability in either modality (Table~\ref{tab:h4}); the differences in mean $R^{2}$ ($0.0050$ NIR, $0.0008$ Raman) are smaller than one standard deviation across seeds: NIR, $R^{2}_{\mathrm{lit}}=0.7933\pm0.0080$ versus $R^{2}_{\mathrm{rand}}=0.7983\pm0.0077$; Raman, $R^{2}_{\mathrm{lit}}=0.9302\pm0.0015$ versus $R^{2}_{\mathrm{rand}}=0.9310\pm0.0014$. Gate stability across seeds, in contrast, differs sharply and consistently in favor of the informed prior (Fig.~\ref{fig:h4}): pairwise gate correlation $\rho=0.9995$ (NIR, literature prior) versus $0.8653$ (NIR, uninformed), and $0.9976$ (Raman, literature prior) versus $0.8931$ (Raman, uninformed); pairwise Jaccard similarity of the top-weighted decile of variables, $0.9418$ (NIR, literature prior) versus $0.6002$ (NIR, uninformed), and $0.9011$ (Raman, literature prior) versus $0.6545$ (Raman, uninformed).
 
 \begin{table}[htbp]
 \centering
@@ -202,14 +219,42 @@ Jaccard (pairwise) & 0.9418 & 0.6002 & 0.9011 & 0.6545 \\
 \end{tabular}
 \end{table}
 
+\paragraph{Control: stability of the gate, or of what is learned?}
+The comparison above admits an alternative reading that must be ruled out before interpretive value is attributed to the prior. Both initializations are deterministic and identical across seeds: the literature prior is a function of the spectral axis alone, and the uninformed condition sets $\theta_0=0$, so that $g_0=0.5$ for every variable. Under the prior, part of the across-seed correlation is therefore attributable to a structure that is the same in every run by construction, and not to training. If the prior merely immobilized the gate, the high reproducibility reported above would be trivial.
+
+To separate the two possibilities we measured the reproducibility of the learned \emph{displacement}, $d=g_{\mathrm{final}}-g_0$, rather than of the final gate. If the prior stabilizes a genuinely learned pattern, $d$ should agree across seeds; if it only freezes the gate, $d$ is noise and its across-seed correlation falls towards zero even while $\rho(g)$ remains high. Table~\ref{tab:h4-control} reports both quantities.
+
+\begin{table}[htbp]
+\centering
+\caption{Control for H4: across-seed reproducibility of the final gate and of the learned displacement $d=g_{\mathrm{final}}-g_0$, with the magnitude of the displacement. Ten seeds per condition. In the uninformed condition $g_0$ is constant, so $\rho(g)$ and $\rho(d)$ coincide by algebraic identity.}
+\label{tab:h4-control}
+\begin{tabular}{llcccc}
+\toprule
+& & $\rho(g)$ & $\rho(d)$ & $\overline{|d|}$ & $\max|d|$ \\
+\midrule
+NIR & Literature prior & 0.9995 & 0.9462 & 0.0397 & 0.0986 \\
+    & Uninformed       & 0.8653 & 0.8653 & 0.0163 & 0.0711 \\
+\midrule
+Raman & Literature prior & 0.9976 & 0.9760 & 0.0367 & 0.1757 \\
+      & Uninformed       & 0.8931 & 0.8931 & 0.0042 & 0.0552 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The control supports the hypothesis. Under the literature prior the learned displacement is reproducible across seeds ($\rho(d)=0.946$ in NIR and $0.976$ in Raman), so the stability reported above is not an artifact of the shared initialization. The gate also moves substantively: the largest displacement reaches $0.099$ (NIR) and $0.176$ (Raman), with a mean of approximately $0.04$ in both modalities.
+
+Two features deserve record. First, the displacement under the prior is \emph{larger} than under uninformed initialization --- about twofold in NIR and almost ninefold in Raman, on average. The prior does not restrict what the gate learns; it amplifies it, presumably by placing the gate in a region of parameter space from which the error gradient is more informative. Second, agreement across seeds on \emph{which} variables move most is considerably weaker than agreement on the global pattern, especially in NIR (Jaccard of the top decile of $|d|$: $0.38$ in NIR, $0.79$ in Raman). The shape of the displacement is reproducible; the identification of individually most mobile bands is less so. This is consistent with the negative result of H5 (Section~\ref{sec:results-h5}), which also finds a resolution limit at the level of individual bands.
+
+We record, as a property of the initialization operator rather than of these results, that the transform $\theta_0=\mathrm{logit}(s)$ applied to a max-normalized prior saturates the variables at which $s=1$: clipping at $1-10^{-6}$ sends the logit to $13.82$, where $\mathrm{d}g/\mathrm{d}\theta=10^{-6}$ against $0.25$ at $g=0.5$. The fraction of variables in that condition is $12.1\%$ in NIR --- the $900$--$1000$~nm region, which receives the maximum weight of the step prior --- and $0.1\%$ in Raman, where the Gaussian prior attains its maximum at few points. Those variables remain effectively fixed during training. This does not affect the measurements above, which are taken over the whole gate, but it does mean that the model cannot lower the weight of regions the prior declares maximal, whatever the data indicate. Subsequent work using this initialization should normalize the prior to a maximum strictly below one, so that gradient is preserved where the prior is most confident.
+
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\linewidth]{h4_prior_ablation.pdf}
-\caption{H4: literature-informed prior versus uninformed initialization, 10 training seeds. (a) Predictive performance is statistically equivalent. (b) Gate stability across seeds is substantially higher with the literature-informed prior, in both modalities.}
+\caption{H4: literature-informed prior versus uninformed initialization, 10 training seeds. (a) Predictive performance does not differ beyond seed-to-seed variability. (b) Stability of the final gate across seeds is substantially higher with the literature-informed prior, in both modalities. (c) Stability of the learned displacement $d=g_{\mathrm{final}}-g_0$: the prior also stabilizes what the model learns, not only where it starts. In the uninformed condition $g_0$ is constant, so panels (b) and (c) coincide there by algebraic identity.}
 \label{fig:h4}
 \end{figure}
 
-\textbf{H4 is supported for gate stability}; the accuracy component of the hypothesis (``equal to or better than'') holds only in the weak sense of statistical equivalence, not superiority, in either modality.
+\textbf{H4 is supported for gate stability}, and the control above establishes that the stability is a property of what the model learns rather than of the shared starting point; the accuracy component of the hypothesis (``equal to or better than'') is not contradicted, but no superiority was observed, and equivalence was not formally tested (e.g., by two one-sided tests with a pre-declared margin), in either modality.
 
 \subsection{H5: structure--physics correlation}
 \label{sec:results-h5}
@@ -238,37 +283,40 @@ Table~\ref{tab:summary} summarizes the outcome of the five hypotheses.
 \toprule
 Hyp. & Outcome & Key evidence \\
 \midrule
-H1 & Supported & $\Delta R^{2}_{\mathrm{PLS}}=+0.0246$ (Raman), $+0.2444$ (NIR); identical architecture \\
+H1 & Not supported (NIR); supported (Raman) & Paired $\Delta R^{2}$ vs.\ PLS-1se: $-0.108\pm0.031$ (NIR, 0/10 splits positive); $+0.036\pm0.007$ (Raman, 10/10) \\
 H2 & Supported, robust & Hoyer sparsity: Raman $0.415$ > NIR $0.235$--$0.318$ (two prior encodings) \\
 H3 & Supported, with correction & Smoothness per cm$^{-1}$: NIR $3.69\times10^{-4} \ll$ Raman $3.80\times10^{-3}$; consistent with raw-spectrum roughness \\
-H4 & Supported (stability); performance equivalent & Pairwise gate $\rho$: $0.998$--$0.9995$ (prior) versus $0.86$--$0.89$ (uninformed), both modalities \\
+H4 & Supported (stability); no performance difference detected & Pairwise gate $\rho$: $0.998$--$0.9995$ (prior) versus $0.86$--$0.89$ (uninformed); displacement control $\rho(d)=0.946$ (NIR), $0.976$ (Raman) \\
 H5 & Not supported & No local descriptor correlates robustly with real per-band linewidth ($n=20$, Raman) \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Taken together, the five results suggest a coherent mechanistic account. In both modalities the learned gate remains close to its initializing prior ($\rho\geq0.98$), indicating that the model's advantage over PLS derives substantially from weighting the spectrum by chemically informed prior knowledge before regression rather than from extensive gradient-driven refinement of the gate. This reading also explains the difference in magnitude between the two modalities in H1: NIR spectra dilute analyte-relevant signal across many broad, overlapping, low-sparsity variables (H2, H3), so down-weighting uninformative regions substantially improves an otherwise weak PLS baseline ($R^{2}$ increasing from $0.568$ to $0.813$); Raman spectra are already sparse and narrow, so PLS applied to the raw spectrum already isolates the relevant signal ($R^{2}=0.904$), leaving comparatively little room for the prior weighting to add value ($R^{2}=0.929$).
+Taken together, the results separate two questions that the submitted version of this work had conflated: whether the gated model predicts better than PLS, and whether its gate carries interpretable, physically consistent structure. On the first question the answer depends on the modality, and in the direction opposite to the one originally reported. In NIR, a PLS model with some seventy latent variables captures the dry-matter signal of this heterogeneous, multi-cultivar season better than the shallow MLP; the large NIR advantage of the submitted version was an artifact of an under-parameterized baseline. In Raman, PLS saturates at four to eight latent variables and the gated MLP improves on it consistently. Because the learned gate stays close to its initialization ($\rho\geq0.98$) and an uninformed initialization reaches the same accuracy (H4), this gain cannot be credited to the prior; it is more plausibly a property of the non-linear regressor, for instance its ability to represent interactions among the eight co-varying substrates of the bioprocess mixtures, which we did not test directly. The contrast between fixed-$H$ and calibrated comparisons is itself a methodological result: predictive claims for neural spectral models should be made only against a linear baseline whose complexity is selected by cross-validation, with training, validation, and test partitions that keep replicate spectra of a sample together. On the second question the answer is positive: gate topology differs between modalities in the direction predicted by their physics (H2, H3), provided the comparison is made per unit of physical spectrum.
 
-H4 refines this picture further: the value of the prior lies not in predictive accuracy --- statistically indistinguishable with or without it --- but in the reproducibility of the learned attention pattern across independent training runs. A gate that points to different variables on every run is not a trustworthy explanation, even when its predictions are accurate; a physically motivated prior appears to function principally as an anchor for interpretability rather than as a performance lever.
+H4 refines this picture further: the value of the prior lies not in predictive accuracy --- indistinguishable, within seed-to-seed variability, with or without it --- but in the reproducibility of the learned attention pattern across independent training runs. Because both initializations are deterministic, that claim required a control, and the control is informative in its own right: not only is the learned displacement reproducible under the prior, it is also two to nine times larger than under uninformed initialization. A literature-derived prior is therefore not a constraint that keeps the gate near a prescribed answer, but a starting point from which the gate moves further and more consistently. A gate that points to different variables on every run is not a trustworthy explanation, even when its predictions are accurate; a physically motivated prior appears to function principally as an anchor for interpretability rather than as a performance lever.
 
 H5, the single negative result, probes a stronger and more granular claim than H2/H3: not merely that aggregate gate topology differs between modalities in a manner consistent with physics (established by H2/H3), but that local gate structure, band by band, tracks the specific linewidth of each vibrational transition. With twenty Raman bands, none of the three descriptors tested produced a robust, replicable correlation, and the entropy descriptor proved unstable enough to reverse sign under a defensible alternative normalization. We interpret this as a resolution limit of the current descriptors rather than evidence that the gate is physically uninformative at a local level: gate topology appears to capture between-modality structural differences without necessarily resolving fine within-modality variation at the level of individual bands, at least with the windowing scheme used here.
 
 \subsection{Limitations}
 
-Three limitations apply across the study. First, the research process included a consequential correction: an unpublished, superseded PGSG implementation was inadvertently used for an initial round of Raman experiments, producing a conclusion opposite to the one that holds under the correct architecture (Section~\ref{sec:model-identity}); this is documented in full in the public repository. Second, cross-modality topology comparisons require careful normalization by physical band density (Section~\ref{sec:results-h2h3}); future extensions of this line of work, including within the same research program, should adopt the same caution. Third, H4 was evaluated with ten training seeds per condition; a larger number would strengthen the stability estimate, although the observed effect is already large and consistent across both modalities.
+Five limitations apply across the study. First, the research process included two consequential corrections: an unpublished, superseded PGSG implementation was inadvertently used for an initial round of Raman experiments, and the PLS baseline of the submitted version used a fixed number of latent variables; each reversed the conclusion for H1 in at least one modality at some stage (Section~\ref{sec:model-identity}), and both are documented in the public repository. Second, cross-modality topology comparisons require careful normalization by physical band density (Section~\ref{sec:results-h2h3}); future extensions of this line of work, including within the same research program, should adopt the same caution. Third, H4 was evaluated with ten training seeds per condition, for both the gate and the displacement control; a larger number would strengthen the stability estimate, although the observed effect is already large and consistent across both modalities. The displacement control shares the single reference split with the other gate analyses, so it establishes reproducibility across initializations of the network, not across resamplings of the data. Fourth, the predictive comparison is restricted to PLS; comparisons with other attention-based architectures and with sparse linear models (Elastic Net, sparse PLS) were not performed and would be needed to position the model's accuracy more broadly. Fifth, only the H1 analysis uses sample-grouped splits: the gate analyses (H2--H5) use the original random reference split, in which replicate spectra of a sample can fall into both partitions, and the early-stopping validation subset of \texttt{PGSGv2Model} is selected by target value within the training partition, without regard to sample grouping. H4 compares two initializations on the same split, so its conclusion is unaffected, but its absolute $R^{2}$ values are slightly optimistic.
 
 \section{Conclusion}
 
-Prior-Guided Spectral Gating generalizes, without architectural modification, from near-infrared to Raman spectroscopy, and its learned gate exhibits topological differences between the two modalities that are consistent with their underlying physical structure once compared on a physically meaningful basis. The magnitude of the predictive advantage, however, depends on how redundant or diluted the analyte-relevant signal already is in a given modality: substantial in NIR, modest in Raman. The principal contribution of a literature-informed prior appears to be the reproducibility of the resulting interpretation across training runs rather than raw accuracy. A finer, band-level test of structure--physics correspondence did not succeed with the descriptors used here, a negative result reported alongside the positive ones. These findings inform subsequent stages of the broader research program (multi-target regression, systematic hyperparameter optimization, uncertainty quantification), for which the expected benefit of spectral gating should be assessed on a case-by-case basis rather than assumed uniform across modalities and targets.
+Applied without architectural modification to NIR and Raman spectroscopy, Prior-Guided Spectral Gating outperforms a PLS baseline with cross-validated complexity in Raman but not in NIR, the reverse of the pattern obtained with a fixed number of PLS components; the NIR advantage reported in the submitted version of this work arose from an under-parameterized baseline. The learned gate nevertheless exhibits topological differences between the two modalities that are consistent with their physical structure once compared on a physically meaningful basis, and a literature-informed prior makes the gate, and the displacement the gate learns, substantially more reproducible across training runs without changing accuracy. A finer, band-level test of structure--physics correspondence did not succeed with the descriptors used here. Because an uninformed initialization reaches the same accuracy, the Raman gain belongs to the non-linear regressor rather than to the prior. For subsequent stages of the research program (multi-target regression, uncertainty quantification), the case for spectral gating should rest on the stability and physical interpretability of the gate, evaluated against calibrated linear baselines and with sample-grouped validation, rather than on an assumed predictive gain.
 
 \section*{Data and code availability}
 \label{sec:availability}
-All code, experiment scripts, saved model outputs, and the commit history documenting the model-identity correction described in Section~\ref{sec:model-identity} are available at \url{https://github.com/clarimar/pgsg2-nir-raman-gating}.
+All code, experiment scripts, saved model outputs, and the commit history documenting the model-identity correction described in Section~\ref{sec:model-identity} are available at \url{https://github.com/clarimar/pgsg2-nir-raman-gating}. The displacement control of Section~\ref{sec:results-h4} is reproduced by \texttt{scripts/r1\_h4\_displacement\_control.py}. The repository includes a verified snapshot of the model and baseline implementations (\texttt{vendor/pgsg\_1}, with SHA-256 checksums), so that all experiments can be run from it alone. The Raman data were obtained through the \texttt{raman-data} package from the Hugging Face dataset \texttt{chlange/SubstrateMixRaman}, revision \texttt{887cf66d8cb25b2b953ee0a36889812f684de03e}.
 
 \section*{Acknowledgments}
-% *** PLACEHOLDER: to be completed with funding/acknowledgment information. ***
+The authors gratefully acknowledge the Coordena\c{c}\~ao de Aperfei\c{c}oamento de Pessoal de N\'ivel Superior (CAPES), Brazil, for covering the Article Processing Charge of this publication under the CAPES--Elsevier Read and Publish Agreement (2026--2028). This research did not receive any specific grant from funding agencies in the public, commercial, or not-for-profit sectors.
 
 \bibliographystyle{elsarticle-num}
 \bibliography{pgsg_2_refs}
 
 \end{document}
+ 
+
+ 
