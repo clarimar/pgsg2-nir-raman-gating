@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "pgsg2-nir-raman-gating"
+type: software
+authors:
+  - family-names: "Coelho"
+    given-names: "Guilherme"
+    affiliation: "State University of Campinas"
+  - family-names: "Coelho"
+    given-names: "Clarimar José"
+    affiliation: "Pontifícia Universidade Católica de Goiás"
+version: "v1.0-chemolab-accepted"
+doi: "10.5281/zenodo.23370645"
+repository-code: "https://github.com/clarimar/pgsg2-nir-raman-gating"
