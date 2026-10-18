@@ -31,6 +31,26 @@ Generalização entre Modalidades Espectroscópicas (NIR–Raman)}\\[0.3cm]
 
 \maketitle
 
+% NOTA-ESTADO-2026-10-18
+\begin{quote}
+\small\textbf{Nota de 2026-10-18.} Este documento registra o planejamento de
+\texttt{pgsg\_2} tal como estava em agosto de 2026. Duas afirmações nele
+foram posteriormente corrigidas pelos próprios autores e não devem ser
+citadas a partir daqui: (i)~a vantagem preditiva sobre PLS em NIR
+($R^2=0{,}806$ vs.\ $0{,}568$, Seção~1) não se sustenta contra um baseline
+com número de variáveis latentes selecionado nos dados de treino e com
+divisões que preservam réplicas espectrais da mesma amostra física
+($\Delta R^2 = -0{,}108 \pm 0{,}031$ em dez divisões agrupadas por fruto);
+(ii)~o manuscrito de escalabilidade ali citado como ``em submissão'' foi
+rejeitado e não será ressubmetido, de modo que a arquitetura
+\texttt{PGSGv2Model} não tem publicação que a introduza. Os resultados
+válidos e o protocolo corrigido estão em \emph{Gate Topology and
+Reproducibility of Prior-Guided Spectral Gating Across Near-Infrared and
+Raman Spectroscopy} (aceito, \emph{Chemometrics and Intelligent Laboratory
+Systems}), que é a fonte a citar.
+\end{quote}
+
+
 \begin{abstract}
 \noindent
 O projeto fundador do programa de pesquisa, \texttt{pgsg\_0}, propôs o \emph{Prior-Guided Spectral Gating} (PGSG), um mecanismo de atenção espectral guiado por priors quimiométricos, validado exclusivamente em espectroscopia no infravermelho próximo (NIR). O projeto \texttt{pgsg\_1} --- \emph{"Prior-Guided Spectral Gating with End-to-End Optimization for NIR Spectroscopy: Scalable Architecture for Interpretable Regression in Small-Sample Regimes"} --- atacou a primeira limitação declarada por \texttt{pgsg\_0} --- validação restrita a amostras pequenas --- demonstrando, com a base Mango DMC v3 ($n=1{,}448$ no protocolo intra-safra), que a arquitetura revisada \texttt{PGSGv2Model} (gate sigmoid independente por banda, regressor MLP leve treinado fim-a-fim via autograd/Adam, prior de literatura fixo e não-circular) mantém vantagem preditiva sobre PLS ($R^2=0{,}806$ vs.\ $0{,}568$). Este documento apresenta a proposta definitiva de \texttt{pgsg\_2}, que ataca a segunda limitação declarada: a validação restrita a uma única modalidade espectroscópica. Diferentemente de uma pré-proposta de brainstorming que cogitou generalizar simultaneamente para Raman, infravermelho médio (MIR) e espectrometria de massas (MS), esta proposta delimita o escopo empírico a duas modalidades --- NIR (reuso de \texttt{pgsg\_1}) e Raman (via o benchmark público RamanBench/\texttt{raman-data}) --- e formaliza um novo constructo, a \emph{topologia do gate espectral}, caracterizada por três descritores quantitativos: entropia, suavidade e esparsidade (índice de Hoyer). MIR e MS são explicitamente descartados do escopo empírico atual por razões de viabilidade e de adequação física do mecanismo, permanecendo como trabalho futuro do programa.
@@ -50,8 +70,8 @@ Projeto & Limitação atacada \\
 \texttt{pgsg\_0} & --- (artigo/projeto fundador; propõe o mecanismo PGSG) \\
 \texttt{pgsg\_1} & Escalabilidade (validação restrita a $n=60$--$215$) \\
 \textbf{\texttt{pgsg\_2}} & \textbf{Modalidade única (validação restrita a NIR)} \\
-\texttt{pgsg\_3} & Alvo único (regressão multi-alvo) \\
-\texttt{pgsg\_4} & Otimização sistemática de hiperparâmetros \\
+\texttt{pgsg\_3} & Força de ancoragem do prior (caminho de regularização) \\
+\texttt{pgsg\_4} & Alvo único (regressão multi-alvo) \\
 \texttt{pgsg\_5} & Ausência de quantificação de incerteza \\
 \bottomrule
 \end{tabular}
@@ -181,7 +201,7 @@ Esses baselines não alteram o escopo de H1--H5 --- continuam centradas em PGSGv
 \subsection{Nota: trilha de imageamento hiperespectral (HSI)}
 \label{sec:hsi-nota}
 
-Uma proposta de financiamento em preparação (CNPq/FNDCT, Chamada Universal 06/2026, Faixa C) associada a este projeto prevê a aquisição de infraestrutura própria --- câmera HSI-SWIR e servidor com GPU dedicado --- para reduzir a dependência de acesso pontual a equipamento de terceiros e abrir uma terceira frente de validação (dados espacialmente resolvidos). Essa frente é tratada explicitamente como \textbf{piloto de infraestrutura, fora do escopo empírico das Hipóteses H1--H5} deste documento: um cubo HSI pode ser tratado como uma coleção de espectros pontuais (um por pixel), permitindo reaproveitar os operadores $\mathcal{G}/\mathcal{T}/\mathcal{P}/\mathcal{M}$ já validados aqui, com extensão natural do operador $\mathcal{I}_{\text{interp}}$ para mapas espaciais de gate --- direção que alimenta \texttt{pgsg\_3} (multi-alvo), não uma hipótese testada em \texttt{pgsg\_2}.
+Uma proposta de financiamento em preparação (CNPq/FNDCT, Chamada Universal 06/2026, Faixa C) associada a este projeto prevê a aquisição de infraestrutura própria --- câmera HSI-SWIR e servidor com GPU dedicado --- para reduzir a dependência de acesso pontual a equipamento de terceiros e abrir uma terceira frente de validação (dados espacialmente resolvidos). Essa frente é tratada explicitamente como \textbf{piloto de infraestrutura, fora do escopo empírico das Hipóteses H1--H5} deste documento: um cubo HSI pode ser tratado como uma coleção de espectros pontuais (um por pixel), permitindo reaproveitar os operadores $\mathcal{G}/\mathcal{T}/\mathcal{P}/\mathcal{M}$ já validados aqui, com extensão natural do operador $\mathcal{I}_{\text{interp}}$ para mapas espaciais de gate --- direção que alimenta \texttt{pgsg\_4} (multi-alvo), não uma hipótese testada em \texttt{pgsg\_2}.
 
 \section{Riscos e limitações}
 
