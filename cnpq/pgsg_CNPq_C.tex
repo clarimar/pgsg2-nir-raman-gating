@@ -31,6 +31,19 @@ Espectroscópicas e Infraestrutura para Imageamento Hiperespectral\\
 
 \maketitle
 
+% NOTA-ESTADO-2026-10-22
+\begin{quote}
+\small\textbf{Nota de 2026-10-22.} A proposta foi submetida ao CNPq na versão
+original e não será reenviada. Esta é a cópia de trabalho atualizada, com os
+resultados do artigo aceito no \emph{Chemometrics and Intelligent Laboratory
+Systems} (baseline PLS calibrado, divisões agrupadas, \texttt{pgsg\_1}
+descontinuado) e a numeração vigente do programa (\texttt{pgsg\_3}: caminho de
+regularização do prior; \texttt{pgsg\_4}: regressão multi-alvo). Em caso de
+aprovação, esta versão orienta o desenvolvimento. As diferenças em relação ao
+texto submetido estão em \texttt{NOTA\_CORRECAO.md}.
+\end{quote}
+
+
 \begin{center}
 \begin{tabular}{ll}
 \toprule
@@ -51,7 +64,7 @@ Modalidade de bolsa & Nenhuma bolsa solicitada nesta versão \\
 
 O mecanismo Prior-Guided Spectral Gating (PGSG), proposto no projeto fundador do programa (\texttt{pgsg\_0}, aceito para publicação em \emph{Chemometrics and Intelligent Laboratory Systems} --- Chemolab), introduz um operador de atenção espectral guiado por priors quimiométricos, capaz de produzir modelos de regressão interpretáveis a partir de dados espectroscópicos. A arquitetura revisada \texttt{PGSGv2Model} (gate sigmoid independente por banda, regressor MLP leve treinado fim-a-fim via autograd/Adam, prior de literatura fixo e não-circular) foi o objeto do terceiro estágio do programa (\texttt{pgsg\_2}), cujo artigo, \emph{Gate Topology and Reproducibility of Prior-Guided Spectral Gating Across Near-Infrared and Raman Spectroscopy}, \textbf{foi aceito para publicação no Chemolab} (manuscrito CHEMOLAB-D-26-01046R1). O estudo testou se o \texttt{PGSGv2Model} generaliza, sem alteração arquitetural, para uma segunda modalidade espectroscópica (Raman, via o benchmark público RamanBench) e se a topologia do gate aprendido --- caracterizada por três descritores formais (entropia, suavidade, esparsidade de Hoyer) --- difere entre NIR e Raman de forma consistente com a física de cada modalidade. Contra um baseline PLS com número de variáveis latentes calibrado por validação cruzada e divisões que mantêm réplicas da mesma amostra juntas, o modelo supera o PLS em Raman ($\Delta R^2=+0{,}036\pm0{,}007$) mas não em NIR ($\Delta R^2=-0{,}108\pm0{,}031$); o resultado reverteu a vantagem preditiva em NIR inicialmente relatada com um baseline PLS de complexidade fixa, e foi reportado com essa correção explícita.
 
-Cinco hipóteses falsificáveis (H1--H5) estruturaram o teste; \textbf{todas já foram avaliadas e relatadas no artigo aceito} (Seção~\ref{sec:resultados-preliminares}): H2, H3 e H4 suportadas, H1 suportada apenas em Raman e H5 não suportada. Para além da execução computacional --- já demonstrada --- o projeto financia a aquisição de infraestrutura própria de aquisição de dados: uma câmera de imageamento hiperespectral (HSI) na faixa SWIR e um servidor com GPU dedicado, reduzindo a dependência de bases públicas e de acesso pontual a equipamento de terceiros, e preparando o grupo de pesquisa da PUC-Goiás para os projetos subsequentes do programa (\texttt{pgsg\_3}: regressão multi-alvo; \texttt{pgsg\_4}: otimização de hiperparâmetros; \texttt{pgsg\_5}: quantificação de incerteza), além de abrir uma linha nova de validação em dados espectrais espacialmente resolvidos.
+Cinco hipóteses falsificáveis (H1--H5) estruturaram o teste; \textbf{todas já foram avaliadas e relatadas no artigo aceito} (Seção~\ref{sec:resultados-preliminares}): H2, H3 e H4 suportadas, H1 suportada apenas em Raman e H5 não suportada. Para além da execução computacional --- já demonstrada --- o projeto financia a aquisição de infraestrutura própria de aquisição de dados: uma câmera de imageamento hiperespectral (HSI) na faixa SWIR e um servidor com GPU dedicado, reduzindo a dependência de bases públicas e de acesso pontual a equipamento de terceiros, e preparando o grupo de pesquisa da PUC-Goiás para os projetos subsequentes do programa (\texttt{pgsg\_3}: caminho de regularização do gate; \texttt{pgsg\_4}: regressão multi-alvo; \texttt{pgsg\_5}: quantificação de incerteza), além de abrir uma linha nova de validação em dados espectrais espacialmente resolvidos.
 
 \subsection*{Abstract}
 Prior-Guided Spectral Gating (PGSG), introduced in the founding project of this research program (\texttt{pgsg\_0}, accepted for publication in \emph{Chemometrics and Intelligent Laboratory Systems}), is a chemometrically-informed spectral attention mechanism for interpretable regression. The program's third stage (\texttt{pgsg\_2}) tested whether the revised \texttt{PGSGv2Model} architecture generalizes, without architectural change, to a second spectroscopic modality (Raman, via the public RamanBench benchmark), and whether the learned gate topology differs between NIR and Raman consistently with the physics of each modality; its article has been accepted at \emph{Chemometrics and Intelligent Laboratory Systems} (CHEMOLAB-D-26-01046R1). Against a PLS baseline with cross-validated complexity and sample-grouped splits, the model outperforms PLS in Raman ($\Delta R^2=+0.036\pm0.007$) but not in NIR ($\Delta R^2=-0.108\pm0.031$); gate sparsity and smoothness differ between modalities in a physically consistent way, and a literature prior improves gate reproducibility, not accuracy. The project also funds acquisition of an NIR hyperspectral imaging (HSI) camera and a dedicated GPU server, building in-house data-acquisition infrastructure for the research group and the program's subsequent stages.
@@ -68,8 +81,8 @@ Projeto & Situação & Limitação/objeto \\
 \texttt{pgsg\_0} & Aceito para publicação --- Chemolab & Mecanismo fundador (PGSG) \\
 \texttt{pgsg\_1} & Descontinuado como publicação & Escalabilidade; a vantagem preditiva sobre PLS não se sustentou com baseline calibrado \\
 \texttt{pgsg\_2} & \textbf{Aceito para publicação --- Chemolab (CHEMOLAB-D-26-01046R1; Seção~\ref{sec:resultados-preliminares})} & Generalização de modalidade (NIR $\to$ NIR + Raman) \\
-\texttt{pgsg\_3} & Planejado & Regressão multi-alvo \\
-\texttt{pgsg\_4} & Planejado & Otimização sistemática de hiperparâmetros \\
+\texttt{pgsg\_3} & Planejado & Caminho de regularização do gate \\
+\texttt{pgsg\_4} & Planejado & Regressão multi-alvo \\
 \texttt{pgsg\_5} & Planejado & Quantificação de incerteza \\
 \bottomrule
 \end{tabular}
@@ -150,7 +163,7 @@ Esses resultados demonstram a viabilidade técnica do projeto e deslocam o finan
 Diferentemente do estágio anterior do programa, que operou exclusivamente sobre bases públicas, e do estágio atual de \texttt{pgsg\_2}, que passou a contar com acesso a máquinas com GPU (uma NVIDIA e uma AMD RX 9060 XT 16GB) e 60 GB de RAM de terceiros, este projeto propõe consolidar essa capacidade como infraestrutura permanente e institucional da PUC-Goiás, em vez de depender de acesso pontual a equipamento de terceiros. Dois itens de capital sustentam essa consolidação:
 
 \subsection{Câmera de imageamento hiperespectral (HSI), faixa SWIR}
-A aquisição de uma câmera HSI-SWIR (\emph{pushbroom}, faixa aproximada 960--2500 nm, sensor InGaAs estendido/refrigerado) permite ao grupo coletar seus próprios cubos hiperespectrais --- dados espacialmente resolvidos, em vez de espectros pontuais --- abrindo uma terceira frente de validação para o programa PGSG, complementar às bases públicas usadas em H1--H5. Tecnicamente, um cubo HSI pode ser tratado como uma coleção de espectros pontuais (um por pixel), o que permite reaproveitar integralmente os operadores $\mathcal{G}/\mathcal{T}/\mathcal{P}/\mathcal{M}$ já validados, com uma extensão natural do operador $\mathcal{I}_{\text{interp}}$ para mapas espaciais de gate --- direção que alimenta diretamente \texttt{pgsg\_3} (multi-alvo) ao permitir múltiplos analitos por amostra física.
+A aquisição de uma câmera HSI-SWIR (\emph{pushbroom}, faixa aproximada 960--2500 nm, sensor InGaAs estendido/refrigerado) permite ao grupo coletar seus próprios cubos hiperespectrais --- dados espacialmente resolvidos, em vez de espectros pontuais --- abrindo uma terceira frente de validação para o programa PGSG, complementar às bases públicas usadas em H1--H5. Tecnicamente, um cubo HSI pode ser tratado como uma coleção de espectros pontuais (um por pixel), o que permite reaproveitar integralmente os operadores $\mathcal{G}/\mathcal{T}/\mathcal{P}/\mathcal{M}$ já validados, com uma extensão natural do operador $\mathcal{I}_{\text{interp}}$ para mapas espaciais de gate --- direção que alimenta diretamente \texttt{pgsg\_4} (multi-alvo) ao permitir múltiplos analitos por amostra física.
 
 \subsection{Servidor com GPU dedicado de maior capacidade}
 O treinamento do \texttt{PGSGv2Model} em regimes de milhares de amostras já demonstrou ser rápido (segundos a poucos minutos por execução, mesmo em $p\approx 1.870$ bandas) em hardware de terceiros; o servidor dedicado se justifica não pela demanda atual, mas pelo processamento futuro de cubos hiperespectrais (centenas de milhares de espectros por imagem, volume de dados substancialmente maior que espectros pontuais) e pela eliminação da dependência de acesso oportunístico a máquinas de terceiros --- um fator de risco explícito para a continuidade dos projetos \texttt{pgsg\_3--5}. Configuração: GPU profissional de VRAM ampliada ($\geq 40$ GB), $\geq 256$ GB de RAM e armazenamento NVMe ampliado.
@@ -169,7 +182,7 @@ Modalidade & Base & Papel \\
 \midrule
 NIR & Mango DMC v3 (DOI 10.17632/46htwnp833.3) & Pipeline de \texttt{pgsg\_1}; nenhum reprocessamento arquitetural \\
 Raman & \texttt{bioprocess\_substrates} (Lange et al., 2026), via RamanBench/\texttt{raman-data} --- $n=6.472$ espectros reais válidos (6.960 originais menos 488 sem rótulo de glicose), 1.870 bandas, alvo: concentração de glicose & Fonte primária do ramo Raman (ADR-0001, \texttt{pgsg\_2}); mesma ordem de grandeza amostral do ramo NIR \\
-HSI (nova, infraestrutura) & Cubos hiperespectrais coletados em laboratório com a câmera adquirida (Seção~\ref{sec:infraestrutura}) & Piloto de viabilidade para extensão espacial do PGSGv2 --- não faz parte das Hipóteses H1--H5, é preparação para \texttt{pgsg\_3} \\
+HSI (nova, infraestrutura) & Cubos hiperespectrais coletados em laboratório com a câmera adquirida (Seção~\ref{sec:infraestrutura}) & Piloto de viabilidade para extensão espacial do PGSGv2 --- não faz parte das Hipóteses H1--H5, é preparação para \texttt{pgsg\_4} \\
 \bottomrule
 \end{tabular}
 \end{center}
